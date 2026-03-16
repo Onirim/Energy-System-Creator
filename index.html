@@ -869,6 +869,20 @@ html, body {
       </div>
       <button class="auth-submit" id="btn-login" onclick="doLogin()">Se connecter</button>
       <div class="auth-error" id="login-error"></div>
+      <div style="text-align:center;margin-top:14px">
+        <button onclick="showResend()" style="background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;text-decoration:underline;padding:0">
+          Pas reçu l'e-mail de confirmation ?
+        </button>
+      </div>
+      <div id="resend-form" style="display:none;margin-top:12px">
+        <div class="auth-field">
+          <label>Votre adresse e-mail</label>
+          <input type="email" id="resend-email" placeholder="vous@exemple.fr" autocomplete="email">
+        </div>
+        <button class="auth-submit" id="btn-resend" onclick="doResend()" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border)">Renvoyer l'e-mail</button>
+        <div class="auth-error" id="resend-error"></div>
+        <div class="auth-success" id="resend-success">E-mail renvoyé ! Vérifiez votre boîte de réception.</div>
+      </div>
     </div>
     <div id="auth-form-signup" style="display:none">
       <div class="auth-field">
@@ -1175,7 +1189,28 @@ async function doSignup() {
   successEl.classList.add('show');
 }
 
-function showAuthError(form, msg) {
+function showResend() {
+  const f = document.getElementById('resend-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+  // Pré-remplit avec l'email saisi dans le champ de login si disponible
+  const loginEmail = document.getElementById('login-email').value;
+  if (loginEmail) document.getElementById('resend-email').value = loginEmail;
+}
+
+async function doResend() {
+  const email = document.getElementById('resend-email').value.trim();
+  const errEl = document.getElementById('resend-error');
+  const successEl = document.getElementById('resend-success');
+  const btn = document.getElementById('btn-resend');
+  errEl.classList.remove('show');
+  successEl.classList.remove('show');
+  if (!email) { errEl.textContent = 'Veuillez saisir votre adresse e-mail.'; errEl.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = 'Envoi…';
+  const { error } = await sb.auth.resend({ type: 'signup', email });
+  btn.disabled = false; btn.textContent = 'Renvoyer l\'e-mail';
+  if (error) { errEl.textContent = translateAuthError(error.message); errEl.classList.add('show'); return; }
+  successEl.classList.add('show');
+}
   const el = document.getElementById(`${form}-error`);
   el.textContent = msg;
   el.classList.add('show');
@@ -1294,39 +1329,54 @@ function setSaveIndicator(state, msg) {
 // ══════════════════════════════════════════════════════════════
 
 async function init() {
-  // Écoute les changements d'état auth
+  // ── Chargement initial : on vérifie la session immédiatement ──
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    await onSignedIn(session.user);
+  } else {
+    onSignedOut();
+  }
+
+  // ── Écoute les changements ultérieurs (login / logout) ────────
   sb.auth.onAuthStateChange(async (event, session) => {
-    if (session?.user) {
-      currentUser = session.user;
-      updateUserUI(currentUser);
-      // Masque auth, montre app
-      document.getElementById('auth-screen').classList.remove('active');
-      document.getElementById('loading-overlay').classList.add('active');
-      document.getElementById('app').style.display = 'flex';
-      // Vérifie si un personnage partagé est dans l'URL
-      const hash = location.hash.slice(1);
-      if (hash.startsWith('char=')) {
-        try {
-          const data = JSON.parse(decodeURIComponent(atob(hash.slice(5))));
-          if (data && data.name) {
-            document.getElementById('loading-overlay').classList.remove('active');
-            editChar(null, data);
-            return;
-          }
-        } catch(e){}
-      }
-      await loadCharsFromDB();
-      document.getElementById('loading-overlay').classList.remove('active');
-      renderList();
-      showView('list');
-    } else {
-      currentUser = null;
-      chars = {};
-      document.getElementById('loading-overlay').classList.remove('active');
-      document.getElementById('auth-screen').classList.add('active');
-      document.getElementById('app').style.display = 'none';
+    if (event === 'SIGNED_IN' && session?.user) {
+      await onSignedIn(session.user);
+    } else if (event === 'SIGNED_OUT') {
+      onSignedOut();
     }
   });
+}
+
+async function onSignedIn(user) {
+  currentUser = user;
+  updateUserUI(currentUser);
+  document.getElementById('auth-screen').classList.remove('active');
+  document.getElementById('loading-overlay').classList.add('active');
+  document.getElementById('app').style.display = 'flex';
+  // Personnage partagé via URL ?
+  const hash = location.hash.slice(1);
+  if (hash.startsWith('char=')) {
+    try {
+      const data = JSON.parse(decodeURIComponent(atob(hash.slice(5))));
+      if (data && data.name) {
+        document.getElementById('loading-overlay').classList.remove('active');
+        editChar(null, data);
+        return;
+      }
+    } catch(e){}
+  }
+  await loadCharsFromDB();
+  document.getElementById('loading-overlay').classList.remove('active');
+  renderList();
+  showView('list');
+}
+
+function onSignedOut() {
+  currentUser = null;
+  chars = {};
+  document.getElementById('loading-overlay').classList.remove('active');
+  document.getElementById('auth-screen').classList.add('active');
+  document.getElementById('app').style.display = 'none';
 }
 
 // ══════════════════════════════════════════════════════════════
