@@ -31,408 +31,2011 @@
   --offc: #e05c5c;
   --offd: #e07a3a;
   --def: #5c9be0;
-  --util: #a885ee;
-  --font-main: 'Barlow', sans-serif;
-  --font-cond: 'Barlow Condensed', sans-serif;
+  --mov: #5cbf7a;
+  --sup: #9b7de8;
+  --energy-color: #e05c5c;
+  --recovery-color: #e07a3a;
+  --vigor-color: #5cbf7a;
+  --rank-color: #e8c46a;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
   --font-mono: 'Space Mono', monospace;
-  --safe-top: env(safe-area-inset-top, 0px);
 }
 
-body {
-  background-color: var(--bg);
+html, body {
+  height: 100%;
+  background: var(--bg);
   color: var(--text);
-  font-family: var(--font-main);
+  font-family: var(--font-body);
+  font-size: 14px;
   line-height: 1.5;
-  overflow-x: hidden;
-  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
 }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
 /* ── Layout ── */
-.app-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+#app { display: flex; flex-direction: column; height: 100vh; }
 
-header {
-  padding: calc(1rem + var(--safe-top)) 1rem 1rem 1rem;
+/* ── Top Bar ── */
+#topbar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 20px;
+  height: 52px;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   flex-shrink: 0;
+  z-index: 10;
 }
-
-.logo-group h1 {
-  font-family: var(--font-cond);
+#topbar .logo {
+  font-family: var(--font-display);
+  font-size: 20px;
   font-weight: 700;
-  font-size: 1.5rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.08em;
   color: var(--accent);
-}
-
-.logo-group p {
-  font-size: 0.75rem;
-  color: var(--text3);
   text-transform: uppercase;
-  letter-spacing: 2px;
 }
-
-.toolbar-right {
-  display: flex;
-  gap: 0.5rem;
+#topbar .logo span { color: var(--text3); font-weight: 400; }
+#topbar nav { display: flex; gap: 2px; margin-left: 8px; }
+#topbar nav button {
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font-display); font-size: 13px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text2); padding: 6px 14px; border-radius: 4px;
+  transition: all 0.15s;
 }
-
-button.btn-icon {
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  color: var(--text);
-  padding: 0.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
+#topbar nav button:hover { color: var(--text); background: var(--bg3); }
+#topbar nav button.active { color: var(--accent); background: var(--bg3); }
+#topbar .spacer { flex: 1; }
+#topbar .share-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--bg3); border: 1px solid var(--border2);
+  color: var(--text2); font-family: var(--font-display); font-size: 12px;
+  font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 6px 14px; border-radius: 4px; cursor: pointer;
+  transition: all 0.15s;
 }
+#topbar .share-btn:hover { color: var(--text); border-color: var(--accent); }
+#topbar .share-btn svg { width: 13px; height: 13px; }
 
-button.btn-icon:hover {
-  background: var(--bg4);
-  border-color: var(--accent);
-}
+/* ── Main content area ── */
+#main { flex: 1; overflow: hidden; display: flex; }
 
-/* ── Main Content ── */
-main {
-  flex: 1;
+/* ══════════════════ LIST VIEW ══════════════════ */
+#view-list {
+  display: none; flex: 1; flex-direction: column;
+  padding: 28px 32px;
   overflow-y: auto;
-  padding: 1.5rem 1rem;
-  padding-bottom: 5rem;
 }
+#view-list.active { display: flex; }
 
-.editor-grid {
+.list-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 24px;
+}
+.list-header h1 {
+  font-family: var(--font-display); font-size: 32px; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--text);
+}
+.list-header h1 span { color: var(--accent); }
+.list-header .count { color: var(--text3); font-size: 13px; font-family: var(--font-mono); }
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--accent); color: var(--bg);
+  font-family: var(--font-display); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 9px 20px; border-radius: 4px; border: none;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-primary:hover { background: #f0d07a; transform: translateY(-1px); }
+.btn-primary svg { width: 14px; height: 14px; }
+
+.char-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
 }
 
-@media (min-width: 900px) {
-  .editor-grid { grid-template-columns: 1fr 1fr; }
-}
-
-.card {
+.char-card {
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 1.25rem;
-}
-
-.card-title {
-  font-family: var(--font-cond);
-  font-weight: 600;
-  font-size: 1.1rem;
-  text-transform: uppercase;
-  color: var(--text2);
-  margin-bottom: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0.5rem;
-}
-
-/* Form Styles */
-.field { margin-bottom: 1rem; }
-.field label {
-  display: block;
-  font-size: 0.8rem;
-  color: var(--text3);
-  text-transform: uppercase;
-  margin-bottom: 0.25rem;
-}
-input[type="text"], 
-input[type="number"], 
-select, 
-textarea {
-  width: 100%;
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  color: var(--text);
-  padding: 0.6rem;
-  border-radius: 4px;
-  font-family: var(--font-main);
-  font-size: 1rem;
-}
-
-/* Stats Grid */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.stat-box {
-  background: var(--bg3);
-  padding: 0.75rem;
-  border-radius: 6px;
-  text-align: center;
-  border: 1px solid transparent;
-}
-.stat-box.off { border-color: rgba(224, 92, 92, 0.3); }
-.stat-box.def { border-color: rgba(92, 155, 224, 0.3); }
-.stat-box.utl { border-color: rgba(168, 133, 238, 0.3); }
-
-.stat-label {
-  display: block;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  color: var(--text3);
-}
-.stat-val {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 1.4rem;
-  display: block;
-}
-
-/* Dynamic Lists */
-.list-item {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  align-items: flex-start;
-}
-.btn-del {
-  background: #3a1c1c;
-  color: #ff8080;
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
+  padding: 18px 20px;
   cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.char-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent); opacity: 0; transition: opacity 0.2s;
+}
+.char-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.char-card:hover::before { opacity: 1; }
+
+.char-card .card-name {
+  font-family: var(--font-display); font-size: 22px; font-weight: 700;
+  letter-spacing: 0.03em; text-transform: uppercase;
+  color: var(--text); margin-bottom: 2px;
+}
+.char-card .card-sub { color: var(--text3); font-size: 12px; margin-bottom: 14px; }
+.char-card .card-rank {
+  display: inline-block;
+  font-family: var(--font-mono); font-size: 11px;
+  background: rgba(232,196,106,0.12); color: var(--accent);
+  border: 1px solid rgba(232,196,106,0.25);
+  padding: 2px 8px; border-radius: 3px; margin-bottom: 14px;
+}
+.char-card .card-attrs {
+  display: flex; gap: 12px;
+}
+.card-attr { text-align: center; }
+.card-attr .val {
+  font-family: var(--font-mono); font-size: 20px; font-weight: 700;
+}
+.card-attr .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); }
+.card-attr.e .val { color: var(--energy-color); }
+.card-attr.r .val { color: var(--recovery-color); }
+.card-attr.v .val { color: var(--vigor-color); }
+
+.card-powers {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 14px;
+}
+.card-power-tag {
+  font-size: 10px; font-family: var(--font-display); font-weight: 600;
+  letter-spacing: 0.04em; padding: 2px 7px; border-radius: 3px;
+}
+
+.char-card .card-actions {
+  position: absolute; top: 12px; right: 12px;
+  display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s;
+}
+.char-card:hover .card-actions { opacity: 1; }
+.icon-btn {
+  width: 28px; height: 28px; border-radius: 4px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text2); cursor: pointer; display: flex;
+  align-items: center; justify-content: center; transition: all 0.15s;
+}
+.icon-btn:hover { border-color: var(--border2); color: var(--text); }
+.icon-btn.danger:hover { border-color: var(--offc); color: var(--offc); }
+.icon-btn svg { width: 13px; height: 13px; }
+
+.empty-state {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px;
+  color: var(--text3);
+}
+.empty-state .icon { font-size: 48px; opacity: 0.3; }
+.empty-state h2 { font-family: var(--font-display); font-size: 22px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text2); }
+.empty-state p { font-size: 13px; text-align: center; max-width: 300px; line-height: 1.7; }
+
+/* ══════════════════ EDITOR VIEW ══════════════════ */
+#view-editor {
+  display: none; flex: 1; overflow: hidden;
+}
+#view-editor.active { display: flex; }
+
+/* Left panel – form */
+#editor-form {
+  width: 380px; flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex; flex-direction: column;
+}
+.form-section {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.form-section:last-child { border-bottom: none; }
+.form-section-title {
+  font-family: var(--font-display); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.form-section-title::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* Form fields */
+.field { margin-bottom: 12px; }
+.field label {
+  display: block; font-size: 11px; font-weight: 500;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 5px;
+}
+.field input, .field select, .field textarea {
+  width: 100%; background: var(--bg3);
+  border: 1px solid var(--border); border-radius: 4px;
+  color: var(--text); font-family: var(--font-body); font-size: 14px;
+  padding: 8px 10px; transition: border-color 0.15s;
+  outline: none;
+}
+.field textarea { resize: vertical; min-height: 60px; }
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--accent);
+}
+.field select option { background: var(--bg3); }
+
+/* Attribute row */
+.attr-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.attr-row .attr-name {
+  width: 130px; font-size: 12px; color: var(--text2);
+  flex-shrink: 0; white-space: nowrap;
+}
+.attr-row .attr-ctrl {
+  display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end;
+}
+.attr-ctrl button {
+  width: 28px; height: 28px; border-radius: 4px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text); cursor: pointer; font-size: 16px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; flex-shrink: 0;
+}
+.attr-ctrl button:hover { border-color: var(--border2); }
+.attr-ctrl .attr-val {
+  font-family: var(--font-mono); font-size: 18px; font-weight: 700;
+  width: 32px; text-align: center;
+}
+.attr-ctrl .attr-cost {
+  font-size: 11px; color: var(--text3); font-family: var(--font-mono);
+  margin-left: auto;
+}
+.attr-ctrl .attr-val.e { color: var(--energy-color); }
+.attr-ctrl .attr-val.r { color: var(--recovery-color); }
+.attr-ctrl .attr-val.v { color: var(--vigor-color); }
+
+/* Points counter */
+.pts-bar {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 4px; padding: 8px 12px;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+.pts-bar .pts-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+.pts-bar .pts-value { font-family: var(--font-mono); font-size: 15px; font-weight: 700; }
+.pts-bar .pts-value.ok { color: var(--mov); }
+.pts-bar .pts-value.over { color: var(--offc); }
+.pts-bar .pts-value.exact { color: var(--accent); }
+
+/* Power rows */
+.power-entry {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; padding: 12px; margin-bottom: 8px;
+}
+.power-entry-header { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+.power-entry-header input {
+  flex: 1; background: var(--bg4); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--text); font-family: var(--font-body);
+  font-size: 13px; padding: 6px 8px; outline: none;
+}
+.power-entry-header input:focus { border-color: var(--accent); }
+.power-entry-footer { display: flex; gap: 8px; align-items: center; }
+.power-entry-footer select {
+  background: var(--bg4); border: 1px solid var(--border); border-radius: 4px;
+  color: var(--text); font-size: 12px; padding: 4px 6px; outline: none; cursor: pointer;
+}
+.power-entry-footer select:focus { border-color: var(--accent); }
+.mod-select { width: 70px !important; }
+.power-cost-display {
+  font-family: var(--font-mono); font-size: 12px; color: var(--text3); margin-left: auto;
+}
+.rm-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); padding: 2px; border-radius: 3px; transition: color 0.15s;
+  display: flex; align-items: center;
+}
+.rm-btn:hover { color: var(--offc); }
+.rm-btn svg { width: 14px; height: 14px; }
+
+.add-btn {
+  width: 100%; background: none; border: 1px dashed var(--border);
+  border-radius: 4px; color: var(--text3);
+  font-family: var(--font-display); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 8px; cursor: pointer; transition: all 0.15s;
+}
+.add-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Aptitudes */
+.aptitude-grid {
+  display: grid; grid-template-columns: 1fr 1px 1fr; gap: 4px 0;
+}
+.aptitude-col-sep {
+  background: var(--border); margin: 2px 8px; border-radius: 1px;
+}
+.apt-row { display: flex; align-items: center; gap: 6px; padding: 1px 4px; }
+.apt-row .apt-name { font-size: 12px; color: var(--text2); flex: 1; }
+.apt-row .apt-ctrl { display: flex; align-items: center; gap: 4px; }
+.apt-ctrl button {
+  width: 22px; height: 22px; border-radius: 3px;
+  background: var(--bg4); border: 1px solid var(--border);
+  color: var(--text2); cursor: pointer; font-size: 13px; line-height: 1;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.apt-ctrl button:hover { border-color: var(--border2); color: var(--text); }
+.apt-ctrl .apt-val {
+  font-family: var(--font-mono); font-size: 13px; font-weight: 700;
+  width: 20px; text-align: center; color: var(--sup);
+}
+.apt-ctrl .apt-val.zero { color: var(--text3); }
+
+/* Apt points counter */
+.apt-pts-bar {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 4px;
+  padding: 7px 12px; display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 12px; font-size: 12px;
+}
+.apt-pts-bar .lbl { color: var(--text3); }
+.apt-pts-bar .val { font-family: var(--font-mono); font-weight: 700; }
+.apt-pts-bar .val.ok { color: var(--mov); }
+.apt-pts-bar .val.over { color: var(--offc); }
+
+/* Traits */
+.trait-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.trait-row input.trait-name {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--text); font-size: 13px; padding: 6px 8px; outline: none;
+}
+.trait-row input.trait-name:focus { border-color: var(--accent); }
+.trait-row .trait-bonus { display: flex; align-items: center; gap: 4px; }
+.trait-row .trait-bonus span { font-size: 11px; color: var(--text3); }
+.trait-row .trait-bonus-val {
+  font-family: var(--font-mono); font-size: 13px; font-weight: 700;
+  width: 20px; text-align: center; color: var(--accent);
+}
+
+/* Complications */
+.compl-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+.compl-row input {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 4px;
+  color: var(--text); font-size: 13px; padding: 6px 8px; outline: none;
+}
+.compl-row input:focus { border-color: var(--accent); }
+
+/* Form actions */
+.form-actions {
+  padding: 16px 20px; background: var(--bg2);
+  border-top: 1px solid var(--border); display: flex; gap: 8px;
+  position: sticky; bottom: 0;
+}
+.btn-save {
+  flex: 1; background: var(--accent); color: var(--bg);
+  font-family: var(--font-display); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 10px; border-radius: 4px; border: none; cursor: pointer; transition: all 0.15s;
+}
+.btn-save:hover { background: #f0d07a; }
+.btn-cancel {
+  background: var(--bg3); border: 1px solid var(--border); color: var(--text2);
+  font-family: var(--font-display); font-size: 13px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 10px 16px; border-radius: 4px; cursor: pointer; transition: all 0.15s;
+}
+.btn-cancel:hover { border-color: var(--border2); color: var(--text); }
+
+/* ══════════════════ PREVIEW PANEL ══════════════════ */
+#preview-panel {
+  flex: 1; overflow-y: auto;
+  background: var(--bg);
+  padding: 28px 32px;
+}
+
+.preview-card {
+  max-width: 560px; margin: 0 auto;
+}
+
+.preview-header {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.preview-name {
+  font-family: var(--font-display); font-size: 42px; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase; line-height: 1;
+  color: var(--text);
+}
+.preview-sub { color: var(--text3); font-size: 13px; margin-top: 6px; }
+.preview-rank-badge {
+  display: inline-block; margin-top: 10px;
+  font-family: var(--font-mono); font-size: 11px;
+  background: rgba(232,196,106,0.12); color: var(--accent);
+  border: 1px solid rgba(232,196,106,0.3);
+  padding: 3px 10px; border-radius: 3px;
+}
+
+.preview-section-title {
+  font-family: var(--font-display); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text3); margin: 22px 0 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.preview-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.preview-attrs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.preview-attr {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px 16px;
+}
+.preview-attr.e { border-left: 3px solid var(--energy-color); }
+.preview-attr.r { border-left: 3px solid var(--recovery-color); }
+.preview-attr.v { border-left: 3px solid var(--vigor-color); }
+.preview-attr .val {
+  font-family: var(--font-mono); font-size: 32px; font-weight: 700; line-height: 1;
+}
+.preview-attr.e .val { color: var(--energy-color); }
+.preview-attr.r .val { color: var(--recovery-color); }
+.preview-attr.v .val { color: var(--vigor-color); }
+.preview-attr .lbl { font-size: 11px; color: var(--text3); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.preview-attr .cost { font-size: 10px; color: var(--text3); font-family: var(--font-mono); margin-top: 3px; }
+.pips { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 8px; }
+.pip { width: 9px; height: 9px; border-radius: 50%; }
+.pip.e { background: var(--energy-color); }
+.pip.r { background: var(--recovery-color); }
+.pip.v { background: var(--vigor-color); }
+.pip.empty { background: var(--bg4); }
+
+.preview-power {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 11px 14px; margin-bottom: 6px;
+}
+.pow-badge {
+  font-family: var(--font-display); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.04em; padding: 3px 8px; border-radius: 3px;
+  white-space: nowrap; margin-top: 1px;
+}
+.pow-badge.offc { background: rgba(224,92,92,0.15); color: var(--offc); border: 1px solid rgba(224,92,92,0.25); }
+.pow-badge.offd { background: rgba(224,122,58,0.15); color: var(--offd); border: 1px solid rgba(224,122,58,0.25); }
+.pow-badge.def  { background: rgba(92,155,224,0.15); color: var(--def); border: 1px solid rgba(92,155,224,0.25); }
+.pow-badge.mov  { background: rgba(92,191,122,0.15); color: var(--mov); border: 1px solid rgba(92,191,122,0.25); }
+.pow-badge.sup  { background: rgba(155,125,232,0.15); color: var(--sup); border: 1px solid rgba(155,125,232,0.25); }
+.pow-body { flex: 1; }
+.pow-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.pow-mod-tag {
+  display: inline-block; font-family: var(--font-mono); font-size: 11px;
+  background: rgba(232,196,106,0.12); color: var(--accent);
+  border: 1px solid rgba(232,196,106,0.2);
+  padding: 1px 6px; border-radius: 3px; margin-left: 6px;
+}
+.pow-desc { font-size: 12px; color: var(--text2); margin-top: 3px; }
+.pow-cost { font-family: var(--font-mono); font-size: 12px; color: var(--text3); margin-left: auto; white-space: nowrap; }
+
+/* Stats bars */
+.stat-bars { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.stat-bar-row { display: flex; align-items: center; gap: 10px; }
+.stat-bar-row .lbl { font-size: 12px; color: var(--text2); width: 100px; flex-shrink: 0; }
+.stat-bar-track { flex: 1; height: 6px; background: var(--bg4); border-radius: 3px; overflow: hidden; }
+.stat-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+.stat-bar-row .num { font-family: var(--font-mono); font-size: 12px; color: var(--text3); width: 20px; text-align: right; }
+
+/* Aptitudes preview */
+.apt-preview-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+.apt-preview-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 4px; padding: 6px 10px;
+}
+.apt-preview-row .name { font-size: 12px; color: var(--text2); }
+.apt-preview-row .rank-dots { display: flex; gap: 3px; }
+.rank-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--bg4); }
+.rank-dot.filled { background: var(--sup); }
+
+/* Traits preview */
+.trait-preview { display: flex; flex-wrap: wrap; gap: 6px; }
+.trait-chip {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 3px; padding: 4px 10px;
+  font-size: 12px; color: var(--text2);
+}
+.trait-chip .bonus { color: var(--accent); font-family: var(--font-mono); font-weight: 700; margin-left: 4px; }
+
+/* Complications preview */
+.compl-preview { display: flex; flex-direction: column; gap: 6px; }
+.compl-chip {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-left: 3px solid var(--border2);
+  border-radius: 0 4px 4px 0; padding: 7px 12px;
+  font-size: 13px; color: var(--text2);
+}
+
+/* Toast */
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--bg3); border: 1px solid var(--border2);
+  color: var(--text); font-family: var(--font-body); font-size: 13px;
+  padding: 10px 20px; border-radius: 6px;
+  transition: transform 0.3s ease; z-index: 100;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── Scrollview view ── */
+#view-sheet {
+  display: none; flex: 1; overflow-y: auto;
+  background: var(--bg); padding: 28px 32px;
+}
+#view-sheet.active { display: flex; justify-content: center; }
+
+/* ══════════════════ MOBILE TABS (editor) ══════════════════ */
+#mobile-tabs {
+  display: none;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
+#mobile-tabs button {
+  flex: 1; background: none; border: none; cursor: pointer;
+  font-family: var(--font-display); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--text2); padding: 11px 8px;
+  border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+#mobile-tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-.btn-add {
-  width: 100%;
-  background: var(--bg4);
-  color: var(--accent);
-  border: 1px dashed var(--accent2);
-  padding: 0.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
+/* ══════════════════ RESPONSIVE ══════════════════ */
+@media (max-width: 768px) {
+  /* Body scrollable on mobile */
+  html, body { overflow: auto; height: auto; }
+  #app { height: auto; min-height: 100vh; overflow: visible; }
+  #main { overflow: visible; }
+
+  /* Show mobile preview button */
+  #mob-preview-btn { display: flex !important; }
+
+  /* Topbar compact */
+  #topbar {
+    padding: 0 12px; gap: 8px; height: 48px;
+    position: sticky; top: 0; z-index: 50;
+  }
+  #topbar .logo { font-size: 16px; }
+  #topbar nav button { padding: 6px 10px; font-size: 11px; }
+  #topbar .share-btn { padding: 5px 10px; font-size: 11px; }
+  #topbar .share-btn svg { display: none; }
+
+  /* Hide text labels on very small screens, keep icons */
+  @media (max-width: 400px) {
+    #topbar .logo span { display: none; }
+    #topbar nav button { padding: 6px 8px; }
+  }
+
+  /* List view */
+  #view-list { padding: 16px; }
+  .list-header { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+  .list-header h1 { font-size: 24px; }
+  .char-grid { grid-template-columns: 1fr; }
+  .char-card:hover { transform: none; }
+
+  /* Editor: stack form + preview, tabs to switch */
+  #view-editor { flex-direction: column; height: auto; overflow: visible; }
+  #mobile-tabs { display: flex; }
+
+  #editor-form {
+    width: 100%; border-right: none;
+    overflow: visible; height: auto;
+  }
+  #editor-form.mob-hidden { display: none; }
+
+  #preview-panel {
+    padding: 16px;
+    overflow: visible; height: auto;
+  }
+  #preview-panel.mob-hidden { display: none; }
+
+  /* Form sections tighter */
+  .form-section { padding: 14px 16px; }
+  .attr-row .attr-name { font-size: 11px; white-space: nowrap; width: 115px; }
+  .aptitude-grid { gap: 2px 0; }
+
+  /* Form actions sticky at bottom */
+  .form-actions {
+    position: sticky; bottom: 0; z-index: 10;
+    padding: 12px 16px;
+  }
+
+  /* Preview card full width */
+  .preview-card { max-width: 100%; }
+  .preview-name { font-size: 30px; }
+  .preview-attrs { grid-template-columns: repeat(3, 1fr); }
+
+  /* Toast higher on mobile (above virtual keyboard) */
+  #toast { bottom: 80px; }
+
+  /* Char card touch target */
+  .char-card { padding: 14px 16px; }
+  .char-card .card-actions { opacity: 1; }
 }
 
-/* Footer Counter */
-.counter-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--bg2);
-  border-top: 2px solid var(--accent);
-  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
-  display: flex;
-  justify-content: space-around;
-  font-family: var(--font-cond);
-  font-weight: 600;
-  z-index: 100;
-}
-.counter-item { text-align: center; }
-.counter-lbl { font-size: 0.7rem; color: var(--text3); text-transform: uppercase; display: block; }
-.counter-val { font-size: 1.2rem; }
-.counter-val.over { color: var(--offc); }
+@media (max-width: 480px) {
+  .preview-name { font-size: 24px; }
+  .preview-attrs { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .preview-attr .val { font-size: 22px; }
+  .apt-preview-grid { grid-template-columns: 1fr; }
+  .trait-preview { flex-direction: column; }
 
+  /* Aptitudes single column on very small */
+  .aptitude-grid { grid-template-columns: 1fr; }
+  .aptitude-col-sep { display: none; }
+}
+
+/* Safe area padding for iPhone notch */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .form-actions {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+  #topbar {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+}
 </style>
 </head>
 <body>
+<div id="app">
 
-<div class="app-container">
-  <header>
-    <div class="logo-group">
-      <h1>Energy System</h1>
-      <p>Character Editor</p>
-    </div>
-    <div class="toolbar-right">
-      </div>
-  </header>
+  <!-- Top bar -->
+  <div id="topbar">
+    <div class="logo">Energy <span>System</span></div>
+    <nav>
+      <button id="nav-list" class="active" onclick="showView('list')">Personnages</button>
+      <button id="nav-editor" onclick="showView('editor')">Éditeur</button>
+    </nav>
+    <div class="spacer"></div>
+    <button class="share-btn" onclick="exportChars()" title="Exporter tous les personnages en JSON">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M8 2v8M5 7l3 3 3-3"/><rect x="2" y="11" width="12" height="3" rx="1"/>
+      </svg>
+      Exporter
+    </button>
+    <label class="share-btn" style="cursor:pointer" title="Importer des personnages depuis un fichier JSON">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M8 10V2M5 5l3-3 3 3"/><rect x="2" y="11" width="12" height="3" rx="1"/>
+      </svg>
+      Importer
+      <input type="file" accept=".json" onchange="importChars(event)" style="display:none">
+    </label>
+    <button class="share-btn" id="print-btn" onclick="printSheet()" style="display:none" title="Exporter la fiche de personnage en PDF A5">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="1" width="10" height="10" rx="1"/><path d="M3 8H1v5h14V8h-2"/><line x1="5" y1="11" x2="11" y2="11"/><line x1="5" y1="13" x2="9" y2="13"/>
+      </svg>
+      Fiche PDF
+    </button>
+    <button class="share-btn" id="share-btn" onclick="shareChar()" style="display:none">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="13" r="1.5"/>
+        <line x1="5.5" y1="7" x2="10.5" y2="4.3"/><line x1="5.5" y1="9" x2="10.5" y2="11.7"/>
+      </svg>
+      Partager
+    </button>
+  </div>
 
-  <main>
-    <div class="editor-grid">
-      
-      <section class="card">
-        <div class="card-title">Identité</div>
-        <div class="field">
-          <label>Nom du Héro / Héroïne</label>
-          <input type="text" id="char-name" placeholder="Ex: Aegis, Volt..." oninput="update('name', this.value)">
+  <!-- Main -->
+  <div id="main">
+
+    <!-- LIST VIEW -->
+    <div id="view-list" class="active">
+      <div class="list-header">
+        <div>
+          <h1>Roster <span id="list-count-badge"></span></h1>
+          <div class="count" id="list-subtitle">Base de données de personnages</div>
         </div>
-        <div class="stats-row">
+        <button class="btn-primary" onclick="newChar()">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg>
+          Nouveau personnage
+        </button>
+      </div>
+      <div id="char-grid" class="char-grid"></div>
+      <div id="empty-state" class="empty-state" style="display:none">
+        <div class="icon">⚡</div>
+        <h2>Aucun personnage</h2>
+        <p>Créez votre premier personnage pour commencer votre base de données de super-héros.</p>
+        <button class="btn-primary" onclick="newChar()">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg>
+          Créer un personnage
+        </button>
+      </div>
+    </div>
+
+    <!-- EDITOR VIEW -->
+    <div id="view-editor">
+      <!-- Mobile tabs (only visible on small screens) -->
+      <div id="mobile-tabs">
+        <button id="mob-tab-form" class="active" onclick="switchMobTab('form')">✏️ Éditer</button>
+        <button id="mob-tab-preview" onclick="switchMobTab('preview')">👁 Aperçu</button>
+      </div>
+      <div id="editor-form">
+        <!-- Identité -->
+        <div class="form-section">
+          <div class="form-section-title">Identité</div>
           <div class="field">
-            <label>Rang</label>
-            <select id="char-rank" onchange="update('rank', parseInt(this.value))">
-              <option value="1">1 (Local)</option>
-              <option value="2">2 (Urbain)</option>
-              <option value="3">3 (National)</option>
-              <option value="4">4 (Mondial)</option>
-              <option value="5">5 (Cosmique)</option>
+            <label>Nom du personnage</label>
+            <input type="text" id="f-name" placeholder="Ex: Kitsune" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Identité réelle</label>
+            <input type="text" id="f-sub" placeholder="Ex: Jane Doe, lycéenne de 16 ans" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Rang de puissance</label>
+            <select id="f-rank" onchange="updateRankMax(); updatePreview()">
+              <option value="1">Rang 1 — Civils (9 pts)</option>
+              <option value="2">Rang 2 — Flics & Voyous (17 pts)</option>
+              <option value="3">Rang 3 — Agents spéciaux (24 pts)</option>
+              <option value="4">Rang 4 — Super héro mineur (32 pts)</option>
+              <option value="5" selected>Rang 5 — Super héro débutant (39 pts)</option>
+              <option value="6">Rang 6 — Super héro compétent (47 pts)</option>
+              <option value="7">Rang 7 — Super héro reconnu (54 pts)</option>
+              <option value="8">Rang 8 — Super héro puissant (62 pts)</option>
+              <option value="9">Rang 9 — Super héro majeur (69 pts)</option>
+              <option value="10">Rang 10 — Plus puissants sur Terre (77 pts)</option>
+              <option value="11">Rang 11+ — Cosmique (84+ pts)</option>
             </select>
           </div>
           <div class="field">
-            <label>Initiative</label>
-            <input type="number" id="char-init" value="0" oninput="update('init', parseInt(this.value)||0)">
-          </div>
-          <div class="field">
-            <label>Énergie</label>
-            <div id="display-energy" class="stat-val" style="margin-top:0.4rem; color:var(--accent)">10</div>
-          </div>
-        </div>
-      </section>
-
-      <section class="card">
-        <div class="card-title">Attributs</div>
-        <div class="stats-row">
-          <div class="stat-box off">
-            <span class="stat-label">Offensif</span>
-            <input type="number" class="stat-val" style="background:transparent; border:none; width:100%; text-align:center" id="char-off" value="0" oninput="update('off', parseInt(this.value)||0)">
-          </div>
-          <div class="stat-box def">
-            <span class="stat-label">Défensif</span>
-            <input type="number" class="stat-val" style="background:transparent; border:none; width:100%; text-align:center" id="char-def" value="0" oninput="update('def', parseInt(this.value)||0)">
-          </div>
-          <div class="stat-box utl">
-            <span class="stat-label">Utilitaire</span>
-            <input type="number" class="stat-val" style="background:transparent; border:none; width:100%; text-align:center" id="char-util" value="0" oninput="update('util', parseInt(this.value)||0)">
+            <label>Maturité</label>
+            <select id="f-maturity" onchange="updatePreview()">
+              <option value="adolescent">Adolescent (12 pts d'aptitudes)</option>
+              <option value="adulte" selected>Adulte (16 pts d'aptitudes)</option>
+              <option value="veteran">Vétéran (20 pts d'aptitudes)</option>
+            </select>
           </div>
         </div>
-      </section>
 
-      <section class="card">
-        <div class="card-title">Pouvoirs & Aptitudes</div>
-        <div id="powers-list"></div>
-        <button class="btn-add" onclick="addItem('powers')">+ Ajouter un pouvoir</button>
-      </section>
+        <!-- Attributs -->
+        <div class="form-section">
+          <div class="form-section-title">Attributs</div>
+          <div class="pts-bar">
+            <span class="pts-label">Points de héros</span>
+            <span class="pts-value" id="pts-display">0 / 39</span>
+          </div>
+          <div class="attr-row">
+            <div class="attr-name">Énergie <span style="color:var(--text3);font-size:11px">(2 pts/+1)</span></div>
+            <div class="attr-ctrl">
+              <button onclick="changeAttr('e',-1)">−</button>
+              <div class="attr-val e" id="val-e">1</div>
+              <button onclick="changeAttr('e',1)">+</button>
+              <div class="attr-cost" id="cost-e">2 pts</div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <div class="attr-name">Récupération <span style="color:var(--text3);font-size:11px">(3 pts/+1)</span></div>
+            <div class="attr-ctrl">
+              <button onclick="changeAttr('r',-1)">−</button>
+              <div class="attr-val r" id="val-r">1</div>
+              <button onclick="changeAttr('r',1)">+</button>
+              <div class="attr-cost" id="cost-r">3 pts</div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <div class="attr-name">Vigueur <span style="color:var(--text3);font-size:11px">(1 pt/+1)</span></div>
+            <div class="attr-ctrl">
+              <button onclick="changeAttr('v',-1)">−</button>
+              <div class="attr-val v" id="val-v">1</div>
+              <button onclick="changeAttr('v',1)">+</button>
+              <div class="attr-cost" id="cost-v">1 pt</div>
+            </div>
+          </div>
+        </div>
 
-      <section class="card">
-        <div class="card-title">Notes & Équipement</div>
-        <textarea id="char-notes" style="min-height: 150px; resize: vertical;" placeholder="Détails, gadgets, points faibles..." oninput="update('notes', this.value)"></textarea>
-      </section>
+        <!-- Pouvoirs -->
+        <div class="form-section">
+          <div class="form-section-title">Pouvoirs</div>
+          <div id="powers-list"></div>
+          <button class="add-btn" onclick="addPower()">+ Ajouter un pouvoir</button>
+        </div>
 
+        <!-- Aptitudes -->
+        <div class="form-section">
+          <div class="form-section-title">Aptitudes</div>
+          <div class="apt-pts-bar">
+            <span class="lbl">Points d'aptitudes</span>
+            <span class="val" id="apt-pts-display">0 / 16</span>
+          </div>
+          <div class="aptitude-grid" id="aptitude-grid"></div>
+        </div>
+
+        <!-- Traits -->
+        <div class="form-section">
+          <div class="form-section-title">Traits</div>
+          <div id="traits-list"></div>
+          <button class="add-btn" onclick="addTrait()">+ Ajouter un trait</button>
+        </div>
+
+        <!-- Complications -->
+        <div class="form-section">
+          <div class="form-section-title">Complications <span style="color:var(--text3);font-weight:400;font-size:10px">(max 5)</span></div>
+          <div id="complications-list"></div>
+          <button class="add-btn" id="add-compl-btn" onclick="addComplication()">+ Ajouter une complication</button>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="showView('list')">Annuler</button>
+          <button class="btn-cancel" id="mob-preview-btn" onclick="switchMobTab('preview')" style="display:none">Aperçu</button>
+          <button class="btn-save" onclick="saveChar()">Sauvegarder</button>
+        </div>
+      </div>
+
+      <!-- Preview panel -->
+      <div id="preview-panel">
+        <div class="preview-card" id="preview-content"></div>
+      </div>
     </div>
-  </main>
 
-  <footer class="counter-bar">
-    <div class="counter-item">
-      <span class="counter-lbl">Pts Utilisés</span>
-      <span id="pts-used" class="counter-val">0</span>
-    </div>
-    <div class="counter-item">
-      <span class="counter-lbl">Pts Max</span>
-      <span id="pts-max" class="counter-val">20</span>
-    </div>
-  </footer>
-</div>
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<div id="toast">Lien copié dans le presse-papier !</div>
 
 <script>
-/* ── State Management ── */
-let s = {
-  name: "",
-  rank: 1,
-  init: 0,
-  off: 0,
-  def: 0,
-  util: 0,
-  powers: [],
-  notes: ""
-};
+// ── Data ──────────────────────────────────────────────────────
+const RANK_PTS = [0,9,17,24,32,39,47,54,62,69,77,84];
+const RANK_LABELS = ['','Civils','Flics & Voyous','Agents spéciaux','Super héro mineur','Super héro débutant','Super héro compétent','Super héro reconnu','Super héro puissant','Super héro majeur','Plus puissants sur Terre','Cosmique'];
+const MATURITY_PTS = { adolescent:12, adulte:16, veteran:20 };
+const APTITUDES = ['Art','Athlétisme','Bagout','Filouterie','Médecine','Nature','Occultisme','Sciences exactes','Sciences humaines','Technologie','Véhicules','Vigilance'];
+const POWER_TYPES = [
+  { value:'offc', label:'Off-C', desc:'Offensif contact' },
+  { value:'offd', label:'Off-D', desc:'Offensif distance' },
+  { value:'def',  label:'Def',   desc:'Défensif' },
+  { value:'mov',  label:'Mov',   desc:'Mouvement' },
+  { value:'sup',  label:'Sup',   desc:'Support' },
+];
+const MOD_OPTIONS = [
+  { value:'0',  label: 'Aucun', cost: 3 },
+  { value:'+1', label: '+1',    cost: 5 },
+  { value:'+2', label: '+2',    cost: 7 },
+  { value:'-1', label: '−1',   cost: 2 },
+  { value:'-2', label: '−2',   cost: 1 },
+];
 
-// Initial Load
-window.onload = () => {
-  const saved = localStorage.getItem('es_hero');
-  if (saved) {
-    s = JSON.parse(saved);
-    renderAll();
+let chars = {};
+let editingId = null;
+let state = null; // current editor state
+
+// ── Storage ───────────────────────────────────────────────────
+function loadChars() {
+  try {
+    const raw = localStorage.getItem('es_characters');
+    if (raw) chars = JSON.parse(raw);
+  } catch(e) { chars = {}; }
+}
+function saveChars() {
+  try { localStorage.setItem('es_characters', JSON.stringify(chars)); } catch(e){}
+}
+
+// ── Init ──────────────────────────────────────────────────────
+function init() {
+  loadChars();
+  // Check for shared char in URL
+  const hash = location.hash.slice(1);
+  if (hash.startsWith('char=')) {
+    try {
+      const data = JSON.parse(decodeURIComponent(atob(hash.slice(5))));
+      if (data && data.name) {
+        editChar(null, data);
+        return;
+      }
+    } catch(e){}
   }
-};
-
-function save() {
-  localStorage.setItem('es_hero', JSON.stringify(s));
-  calc();
+  renderList();
+  showView('list');
 }
 
-function update(key, val) {
-  s[key] = val;
-  save();
+// ── Views ─────────────────────────────────────────────────────
+function showView(view) {
+  document.getElementById('view-list').classList.toggle('active', view === 'list');
+  document.getElementById('view-editor').classList.toggle('active', view === 'editor');
+  document.getElementById('nav-list').classList.toggle('active', view === 'list');
+  document.getElementById('nav-editor').classList.toggle('active', view === 'editor');
+  document.getElementById('share-btn').style.display = view === 'editor' ? 'flex' : 'none';
+  document.getElementById('print-btn').style.display = view === 'editor' ? 'flex' : 'none';
+  if (view === 'editor') switchMobTab('form');
+  if (view === 'list') renderList();
 }
 
-function calc() {
-  // Pts Max = 20 + (Rang-1)*10
-  const max = 20 + (s.rank - 1) * 10;
-  // Energie = 10 + Rang
-  const energy = 10 + s.rank;
-  
-  // Cost = Off + Def + Util + Sum(Powers)
-  let used = s.off + s.def + s.util;
-  s.powers.forEach(p => used += (parseInt(p.cost) || 0));
-
-  document.getElementById('pts-used').textContent = used;
-  document.getElementById('pts-used').className = used > max ? 'counter-val over' : 'counter-val';
-  document.getElementById('pts-max').textContent = max;
-  document.getElementById('display-energy').textContent = energy;
+function switchMobTab(tab) {
+  const form = document.getElementById('editor-form');
+  const preview = document.getElementById('preview-panel');
+  const btnForm = document.getElementById('mob-tab-form');
+  const btnPreview = document.getElementById('mob-tab-preview');
+  if (!form || !preview) return;
+  if (tab === 'form') {
+    form.classList.remove('mob-hidden');
+    preview.classList.add('mob-hidden');
+    btnForm && btnForm.classList.add('active');
+    btnPreview && btnPreview.classList.remove('active');
+  } else {
+    form.classList.add('mob-hidden');
+    preview.classList.remove('mob-hidden');
+    btnForm && btnForm.classList.remove('active');
+    btnPreview && btnPreview.classList.add('active');
+  }
 }
 
-/* ── UI Rendering ── */
-function renderAll() {
-  document.getElementById('char-name').value = s.name;
-  document.getElementById('char-rank').value = s.rank;
-  document.getElementById('char-init').value = s.init;
-  document.getElementById('char-off').value = s.off;
-  document.getElementById('char-def').value = s.def;
-  document.getElementById('char-util').value = s.util;
-  document.getElementById('char-notes').value = s.notes;
+// ── List ──────────────────────────────────────────────────────
+function renderList() {
+  const keys = Object.keys(chars);
+  document.getElementById('list-count-badge').textContent = keys.length ? `(${keys.length})` : '';
+  const grid = document.getElementById('char-grid');
+  const empty = document.getElementById('empty-state');
+  if (!keys.length) { grid.innerHTML = ''; empty.style.display = 'flex'; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = keys.map(id => cardHTML(id, chars[id])).join('');
+}
+
+function cardHTML(id, c) {
+  const rankLabel = RANK_LABELS[c.rank] || 'Inconnu';
+  const pwrTags = (c.powers||[]).map(p =>
+    `<span class="card-power-tag" style="${powerTagStyle(p.type)}">${POWER_TYPES.find(t=>t.value===p.type)?.label||p.type}</span>`
+  ).join('');
+  return `<div class="char-card" onclick="editChar('${id}')">
+    <div class="card-actions">
+      <button class="icon-btn" onclick="event.stopPropagation();editChar('${id}')" title="Modifier">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 2l3 3-9 9H2v-3z"/></svg>
+      </button>
+      <button class="icon-btn danger" onclick="event.stopPropagation();deleteChar('${id}')" title="Supprimer">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3,4 13,4"/><path d="M5 4V2h6v2M6 7v5M10 7v5"/><path d="M4 4l1 10h6l1-10"/></svg>
+      </button>
+    </div>
+    <div class="card-name">${esc(c.name) || 'Sans nom'}</div>
+    <div class="card-sub">${esc(c.subtitle) || ''}</div>
+    <div class="card-rank">Rang ${c.rank} — ${rankLabel}</div>
+    <div class="card-attrs">
+      <div class="card-attr e"><div class="val">${c.energy||1}</div><div class="lbl">Énergie</div></div>
+      <div class="card-attr r"><div class="val">${c.recovery||1}</div><div class="lbl">Récup.</div></div>
+      <div class="card-attr v"><div class="val">${c.vigor||1}</div><div class="lbl">Vigueur</div></div>
+    </div>
+    <div class="card-powers">${pwrTags}</div>
+  </div>`;
+}
+
+function powerTagStyle(type) {
+  const styles = {
+    offc: 'background:rgba(224,92,92,0.15);color:#e05c5c;',
+    offd: 'background:rgba(224,122,58,0.15);color:#e07a3a;',
+    def:  'background:rgba(92,155,224,0.15);color:#5c9be0;',
+    mov:  'background:rgba(92,191,122,0.15);color:#5cbf7a;',
+    sup:  'background:rgba(155,125,232,0.15);color:#9b7de8;',
+  };
+  return styles[type] || '';
+}
+
+// ── Editor ────────────────────────────────────────────────────
+function freshState() {
+  return {
+    name:'', subtitle:'', rank:5, maturity:'adulte',
+    energy:1, recovery:1, vigor:1,
+    powers:[], aptitudes:{}, traits:[], complications:[],
+  };
+}
+
+function newChar() {
+  editingId = null;
+  state = freshState();
+  populateEditor();
+  showView('editor');
+}
+
+function editChar(id, dataOverride) {
+  editingId = id;
+  const src = dataOverride || (id ? chars[id] : null) || freshState();
+  state = JSON.parse(JSON.stringify(src));
+  if (!state.aptitudes) state.aptitudes = {};
+  if (!state.powers) state.powers = [];
+  if (!state.traits) state.traits = [];
+  if (!state.complications) state.complications = [];
+  populateEditor();
+  showView('editor');
+}
+
+function deleteChar(id) {
+  if (!confirm(`Supprimer "${chars[id]?.name || 'ce personnage'}" ?`)) return;
+  delete chars[id];
+  saveChars();
+  renderList();
+}
+
+function populateEditor() {
+  document.getElementById('f-name').value = state.name || '';
+  document.getElementById('f-sub').value = state.subtitle || '';
+  document.getElementById('f-rank').value = state.rank || 5;
+  document.getElementById('f-maturity').value = state.maturity || 'adulte';
+  document.getElementById('val-e').textContent = state.energy;
+  document.getElementById('val-r').textContent = state.recovery;
+  document.getElementById('val-v').textContent = state.vigor;
   renderPowers();
-  calc();
+  renderAptitudes();
+  renderTraits();
+  renderComplications();
+  updatePreview();
+  updatePtsDisplay();
+  updateAptPtsDisplay();
 }
 
-function renderPowers() {
-  const container = document.getElementById('powers-list');
-  container.innerHTML = "";
-  s.powers.forEach((p, idx) => {
-    const div = document.createElement('div');
-    div.className = "list-item";
-    div.innerHTML = `
-      <input type="text" placeholder="Nom" value="${p.name}" oninput="updateItem('powers', ${idx}, 'name', this.value)">
-      <input type="number" placeholder="Coût" style="width:70px" value="${p.cost}" oninput="updateItem('powers', ${idx}, 'cost', parseInt(this.value)||0)">
-      <button class="btn-del" onclick="removeItem('powers', ${idx})">✕</button>
-    `;
-    container.appendChild(div);
+// ── Attributes ────────────────────────────────────────────────
+function changeAttr(attr, delta) {
+  const key = {e:'energy',r:'recovery',v:'vigor'}[attr];
+  const cur = state[key];
+  const nv = Math.max(1, cur + delta);
+  if (attr === 'r' && nv > state.energy) return; // récup <= énergie
+  state[key] = nv;
+  document.getElementById('val-'+attr).textContent = nv;
+  updatePtsDisplay();
+  updatePreview();
+}
+
+function calcAttrCost() {
+  return (state.energy * 2) + (state.recovery * 3) + (state.vigor * 1);
+}
+function calcPowersCost() {
+  return (state.powers || []).reduce((s,p) => s + powerCost(p), 0);
+}
+function powerCost(p) {
+  const modCosts = {'+1':2,'+2':4,'-1':-1,'-2':-2};
+  return Math.max(1, 3 + (modCosts[p.mod] || 0));
+}
+function totalCost() { return calcAttrCost() + calcPowersCost(); }
+function maxPts() { return RANK_PTS[Math.min(state.rank, 11)] || 39; }
+
+function updatePtsDisplay() {
+  const used = totalCost();
+  const max = maxPts();
+  const el = document.getElementById('pts-display');
+  el.textContent = `${used} / ${max}`;
+  el.className = 'pts-value ' + (used > max ? 'over' : used === max ? 'exact' : 'ok');
+  ['e','r','v'].forEach(a => {
+    const key = {e:'energy',r:'recovery',v:'vigor'}[a];
+    const costs = {e:2,r:3,v:1};
+    document.getElementById('cost-'+a).textContent = `${state[key] * costs[a]} pts`;
   });
 }
 
-function addItem(key) {
-  s[key].push({ name: "", cost: 0 });
+function updateRankMax() {
+  state.rank = parseInt(document.getElementById('f-rank').value);
+  updatePtsDisplay();
+  updatePreview();
+}
+
+// ── Powers ────────────────────────────────────────────────────
+function renderPowers() {
+  const container = document.getElementById('powers-list');
+  container.innerHTML = state.powers.map((p, i) => powerEntryHTML(p, i)).join('');
+}
+
+function powerEntryHTML(p, i) {
+  const typeOpts = POWER_TYPES.map(t =>
+    `<option value="${t.value}" ${p.type===t.value?'selected':''}>${t.label} — ${t.desc}</option>`
+  ).join('');
+  const modOpts = MOD_OPTIONS.map(m =>
+    `<option value="${m.value}" ${p.mod===m.value?'selected':''}>${m.label}</option>`
+  ).join('');
+  const cost = powerCost(p);
+  return `<div class="power-entry" id="pow-${i}">
+    <div class="power-entry-header">
+      <input type="text" placeholder="Nom du pouvoir" value="${esc(p.name||'')}"
+        oninput="state.powers[${i}].name=this.value;updatePreview()">
+      <button class="rm-btn" onclick="removePower(${i})">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/>
+        </svg>
+      </button>
+    </div>
+    <div class="power-entry-footer">
+      <select onchange="state.powers[${i}].type=this.value;updatePreview()">${typeOpts}</select>
+      <select class="mod-select" onchange="state.powers[${i}].mod=this.value;updatePtsDisplay();updatePreview()">${modOpts}</select>
+      <div class="power-cost-display">${cost} pts</div>
+    </div>
+    <div style="margin-top:7px">
+      <input type="text" placeholder="Description courte (optionnelle)" style="width:100%;background:var(--bg4);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:5px 8px;outline:none" value="${esc(p.desc||'')}" oninput="state.powers[${i}].desc=this.value;updatePreview()" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+    </div>
+  </div>`;
+}
+
+function addPower() {
+  state.powers.push({ name:'', type:'offc', mod:'0', desc:'' });
   renderPowers();
-  save();
+  updatePtsDisplay();
+  updatePreview();
 }
 
-function updateItem(key, idx, field, val) {
-  s[key][idx][field] = val;
-  save();
-}
-
-function removeItem(key, idx) {
-  s[key].splice(idx, 1);
+function removePower(i) {
+  state.powers.splice(i, 1);
   renderPowers();
-  save();
+  updatePtsDisplay();
+  updatePreview();
 }
 
-// Service Worker Registration
+// ── Aptitudes ─────────────────────────────────────────────────
+function renderAptitudes() {
+  const grid = document.getElementById('aptitude-grid');
+  const half = Math.ceil(APTITUDES.length / 2);
+  const left = APTITUDES.slice(0, half);
+  const right = APTITUDES.slice(half);
+  const rowCount = Math.max(left.length, right.length);
+  let rows = '';
+  for (let i = 0; i < rowCount; i++) {
+    const aptL = left[i];
+    const aptR = right[i];
+    const valL = aptL ? (state.aptitudes[aptL] || 0) : null;
+    const valR = aptR ? (state.aptitudes[aptR] || 0) : null;
+    const leftCell = aptL ? `<div class="apt-row">
+      <div class="apt-name">${aptL}</div>
+      <div class="apt-ctrl">
+        <button onclick="changeApt('${aptL}',-1)">−</button>
+        <div class="apt-val ${valL===0?'zero':''}" id="apt-${aptL.replace(/\s/g,'_')}">${valL}</div>
+        <button onclick="changeApt('${aptL}',1)">+</button>
+      </div>
+    </div>` : '<div></div>';
+    const rightCell = aptR ? `<div class="apt-row">
+      <div class="apt-name">${aptR}</div>
+      <div class="apt-ctrl">
+        <button onclick="changeApt('${aptR}',-1)">−</button>
+        <div class="apt-val ${valR===0?'zero':''}" id="apt-${aptR.replace(/\s/g,'_')}">${valR}</div>
+        <button onclick="changeApt('${aptR}',1)">+</button>
+      </div>
+    </div>` : '<div></div>';
+    rows += leftCell + '<div class="aptitude-col-sep"></div>' + rightCell;
+  }
+  grid.innerHTML = rows;
+}
+
+function changeApt(apt, delta) {
+  const cur = state.aptitudes[apt] || 0;
+  const nv = Math.max(0, cur + delta);
+  const used = calcAptPts();
+  const max = MATURITY_PTS[state.maturity || 'adulte'];
+  // include traits cost
+  const traitPts = (state.traits||[]).reduce((s,t) => s + (t.bonus||1), 0);
+  const available = max - traitPts;
+  if (delta > 0 && used - traitPts >= available) return;
+  state.aptitudes[apt] = nv;
+  const el = document.getElementById(`apt-${apt.replace(/\s/g,'_')}`);
+  if (el) { el.textContent = nv; el.className = `apt-val ${nv===0?'zero':''}`; }
+  updateAptPtsDisplay();
+  updatePreview();
+}
+
+function calcAptPts() {
+  const aptSum = Object.values(state.aptitudes||{}).reduce((s,v)=>s+v,0);
+  const traitSum = (state.traits||[]).reduce((s,t)=>s+(t.bonus||1),0);
+  return aptSum + traitSum;
+}
+
+function updateAptPtsDisplay() {
+  const used = calcAptPts();
+  const max = MATURITY_PTS[state.maturity || 'adulte'];
+  const el = document.getElementById('apt-pts-display');
+  el.textContent = `${used} / ${max}`;
+  el.className = `val ${used > max ? 'over' : 'ok'}`;
+}
+
+// ── Traits ────────────────────────────────────────────────────
+function renderTraits() {
+  const container = document.getElementById('traits-list');
+  container.innerHTML = (state.traits||[]).map((t,i) => `
+    <div class="trait-row">
+      <input class="trait-name" type="text" placeholder="Nom du trait" value="${esc(t.name||'')}"
+        oninput="state.traits[${i}].name=this.value;updatePreview()">
+      <div class="trait-bonus">
+        <button style="width:22px;height:22px;border-radius:3px;background:var(--bg4);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center" onclick="changeTrait(${i},-1)">−</button>
+        <div class="trait-bonus-val">+${t.bonus||1}</div>
+        <button style="width:22px;height:22px;border-radius:3px;background:var(--bg4);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center" onclick="changeTrait(${i},1)">+</button>
+        <span style="font-size:10px;color:var(--text3);margin-left:2px">${t.bonus||1} pt${(t.bonus||1)>1?'s':''}</span>
+      </div>
+      <button class="rm-btn" onclick="removeTrait(${i})">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/>
+        </svg>
+      </button>
+    </div>`).join('');
+}
+
+function addTrait() {
+  state.traits.push({ name:'', bonus:1 });
+  renderTraits();
+  updateAptPtsDisplay();
+  updatePreview();
+}
+
+function removeTrait(i) {
+  state.traits.splice(i,1);
+  renderTraits();
+  updateAptPtsDisplay();
+  updatePreview();
+}
+
+function changeTrait(i, delta) {
+  const t = state.traits[i];
+  const nv = Math.max(1, (t.bonus||1) + delta);
+  const used = calcAptPts();
+  const max = MATURITY_PTS[state.maturity || 'adulte'];
+  if (delta > 0 && used >= max) return;
+  t.bonus = nv;
+  renderTraits();
+  updateAptPtsDisplay();
+  updatePreview();
+}
+
+// ── Complications ─────────────────────────────────────────────
+function renderComplications() {
+  const container = document.getElementById('complications-list');
+  container.innerHTML = (state.complications||[]).map((c,i) => `
+    <div class="compl-row">
+      <input type="text" placeholder="Description de la complication" value="${esc(c||'')}"
+        oninput="state.complications[${i}]=this.value;updatePreview()">
+      <button class="rm-btn" onclick="removeComplication(${i})">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/>
+        </svg>
+      </button>
+    </div>`).join('');
+  document.getElementById('add-compl-btn').style.display = (state.complications||[]).length >= 5 ? 'none' : 'block';
+}
+
+function addComplication() {
+  if ((state.complications||[]).length >= 5) return;
+  state.complications.push('');
+  renderComplications();
+}
+
+function removeComplication(i) {
+  state.complications.splice(i,1);
+  renderComplications();
+  updatePreview();
+}
+
+// ── Preview ───────────────────────────────────────────────────
+function updatePreview() {
+  state.name = document.getElementById('f-name').value;
+  state.subtitle = document.getElementById('f-sub').value;
+  state.rank = parseInt(document.getElementById('f-rank').value);
+  state.maturity = document.getElementById('f-maturity').value;
+
+  const rankLabel = RANK_LABELS[state.rank] || '';
+  const used = totalCost(); const max = maxPts();
+  const ptColor = used > max ? 'var(--offc)' : used === max ? 'var(--accent)' : 'var(--mov)';
+
+  // Power rows
+  const powHtml = (state.powers||[]).filter(p=>p.name).map(p => {
+    const t = POWER_TYPES.find(t=>t.value===p.type);
+    const modTag = p.mod && p.mod !== '0' ? `<span class="pow-mod-tag">${p.mod}</span>` : '';
+    const cost = powerCost(p);
+    return `<div class="preview-power">
+      <span class="pow-badge ${p.type}">${t?.label||p.type}</span>
+      <div class="pow-body">
+        <div class="pow-name">${esc(p.name)}${modTag}</div>
+        ${p.desc ? `<div class="pow-desc">${esc(p.desc)}</div>` : ''}
+      </div>
+      <div class="pow-cost">${cost} pts</div>
+    </div>`;
+  }).join('');
+
+  // Aptitudes
+  const aptEntries = Object.entries(state.aptitudes||{}).filter(([,v])=>v>0);
+  const aptHtml = aptEntries.length ? `
+    <div class="preview-section-title">Aptitudes</div>
+    <div class="apt-preview-grid">
+      ${aptEntries.map(([name, val]) => `
+        <div class="apt-preview-row">
+          <span class="name">${name}</span>
+          <span class="rank-dots">${[1,2,3,4].map(i=>`<span class="rank-dot ${i<=val?'filled':''}"></span>`).join('')}</span>
+        </div>`).join('')}
+    </div>` : '';
+
+  // Traits
+  const traitsWithName = (state.traits||[]).filter(t=>t.name);
+  const traitsHtml = traitsWithName.length ? `
+    <div class="preview-section-title">Traits</div>
+    <div class="trait-preview">
+      ${traitsWithName.map(t=>`<div class="trait-chip">${esc(t.name)}<span class="bonus">+${t.bonus}</span></div>`).join('')}
+    </div>` : '';
+
+  // Complications
+  const complHtml = (state.complications||[]).filter(c=>c).length ? `
+    <div class="preview-section-title">Complications</div>
+    <div class="compl-preview">
+      ${(state.complications||[]).filter(c=>c).map(c=>`<div class="compl-chip">${esc(c)}</div>`).join('')}
+    </div>` : '';
+
+  // Stat bars (énergie max 11+)
+  const barMax = 11;
+  const ePct = Math.min(100, (state.energy / barMax) * 100);
+  const rPct = Math.min(100, (state.recovery / barMax) * 100);
+  const vPct = Math.min(100, (state.vigor / barMax) * 100);
+
+  document.getElementById('preview-content').innerHTML = `
+    <div class="preview-header">
+      <div class="preview-name">${esc(state.name) || '—'}</div>
+      ${state.subtitle ? `<div class="preview-sub">${esc(state.subtitle)}</div>` : ''}
+      <div class="preview-rank-badge">Rang ${state.rank} — ${rankLabel}</div>
+    </div>
+
+    <div class="preview-section-title">Attributs <span style="color:${ptColor};font-family:var(--font-mono);font-size:10px;margin-left:4px">${used} / ${max} pts</span></div>
+    <div class="preview-attrs">
+      <div class="preview-attr e">
+        <div class="val">${state.energy}</div>
+        <div class="lbl">Énergie</div>
+        <div class="cost">${state.energy*2} pts de héros</div>
+        <div class="pips">${pipRow(state.energy, 'e', barMax)}</div>
+      </div>
+      <div class="preview-attr r">
+        <div class="val">${state.recovery}</div>
+        <div class="lbl">Récupération</div>
+        <div class="cost">${state.recovery*3} pts de héros</div>
+        <div class="pips">${pipRow(state.recovery, 'r', barMax)}</div>
+      </div>
+      <div class="preview-attr v">
+        <div class="val">${state.vigor}</div>
+        <div class="lbl">Vigueur</div>
+        <div class="cost">${state.vigor*1} pts de héros</div>
+        <div class="pips">${pipRow(state.vigor, 'v', barMax)}</div>
+      </div>
+    </div>
+
+    <div class="stat-bars" style="margin-top:16px">
+      <div class="stat-bar-row">
+        <span class="lbl">Explosivité</span>
+        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${ePct}%;background:var(--energy-color)"></div></div>
+        <span class="num">${state.energy}</span>
+      </div>
+      <div class="stat-bar-row">
+        <span class="lbl">Endurance</span>
+        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${rPct}%;background:var(--recovery-color)"></div></div>
+        <span class="num">${state.recovery}</span>
+      </div>
+      <div class="stat-bar-row">
+        <span class="lbl">Résistance</span>
+        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${vPct}%;background:var(--vigor-color)"></div></div>
+        <span class="num">${state.vigor}</span>
+      </div>
+    </div>
+
+    ${(state.powers||[]).filter(p=>p.name).length ? `<div class="preview-section-title">Pouvoirs</div>${powHtml}` : ''}
+    ${aptHtml}
+    ${traitsHtml}
+    ${complHtml}
+  `;
+}
+
+function pipRow(val, cls, max) {
+  return Array.from({length:max}, (_,i) =>
+    `<div class="pip ${i < val ? cls : 'empty'}"></div>`
+  ).join('');
+}
+
+// ── Save ──────────────────────────────────────────────────────
+function saveChar() {
+  if (!state.name.trim()) { alert('Veuillez donner un nom au personnage.'); return; }
+  const id = editingId || ('char_' + Date.now());
+  chars[id] = JSON.parse(JSON.stringify(state));
+  saveChars();
+  editingId = id;
+  showToast('Personnage sauvegardé !');
+}
+
+// ── Export ────────────────────────────────────────────────────
+function exportChars() {
+  const keys = Object.keys(chars);
+  if (!keys.length) { showToast('Aucun personnage à exporter.'); return; }
+  const data = JSON.stringify(chars, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const date = new Date().toISOString().slice(0,10);
+  a.download = `energy-system-personnages-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`${keys.length} personnage${keys.length > 1 ? 's' : ''} exporté${keys.length > 1 ? 's' : ''} !`);
+}
+
+// ── Import ────────────────────────────────────────────────────
+function importChars(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      // Accepte soit un objet {id: char} soit un tableau [char, char]
+      let imported = {};
+      if (Array.isArray(data)) {
+        data.forEach((c, i) => {
+          if (c && c.name) imported['char_import_' + Date.now() + '_' + i] = c;
+        });
+      } else if (typeof data === 'object') {
+        // Vérifier que les valeurs ressemblent à des personnages
+        for (const [k, v] of Object.entries(data)) {
+          if (v && typeof v === 'object' && v.name !== undefined) imported[k] = v;
+        }
+      }
+      const count = Object.keys(imported).length;
+      if (!count) { showToast('Fichier invalide ou vide.'); return; }
+      const existing = Object.keys(chars).length;
+      if (existing > 0) {
+        const merge = confirm(`${count} personnage${count>1?'s':''} trouvé${count>1?'s':''} dans le fichier.\n\nCliquez OK pour fusionner avec vos ${existing} personnage${existing>1?'s':''} existants, ou Annuler pour remplacer.`);
+        if (merge) {
+          chars = { ...chars, ...imported };
+        } else {
+          chars = imported;
+        }
+      } else {
+        chars = imported;
+      }
+      await saveChars();
+      renderList();
+      showView('list');
+      showToast(`${count} personnage${count>1?'s':''} importé${count>1?'s':''} !`);
+    } catch(err) {
+      showToast('Erreur : fichier JSON invalide.');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ── Share ─────────────────────────────────────────────────────
+function shareChar() {
+  const data = JSON.stringify(state);
+  const encoded = btoa(encodeURIComponent(data));
+  const url = location.origin + location.pathname + '#char=' + encoded;
+  navigator.clipboard.writeText(url).then(() => showToast('Lien copié dans le presse-papier !')).catch(() => {
+    prompt('Copiez ce lien :', url);
+  });
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── Utils ─────────────────────────────────────────────────────
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Boot ──────────────────────────────────────────────────────
+init();
+
+// ── Service Worker (PWA) ──────────────────────────────────────
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+<!-- ── Print Sheet Overlay ── -->
+<div id="print-overlay" style="display:none">
+  <div id="print-sheet"></div>
+</div>
+
+<style>
+/* ── Overlay wrapper ── */
+#print-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.88);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 32px 16px 48px;
+  overflow-y: auto;
+}
+#print-sheet {
+  background: #f5f0e8;
+  width: 210mm;
+  min-height: 297mm;
+  position: relative;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.7);
+  font-family: 'Barlow', sans-serif;
+  font-size: 8.5pt;
+  color: #1a1008;
+  line-height: 1.4;
+}
+#print-overlay .pclose {
+  position: fixed; top: 16px; right: 16px;
+  background: #333; border: none; color: #fff;
+  width: 36px; height: 36px; border-radius: 50%;
+  font-size: 18px; cursor: pointer; z-index: 201;
+  display: flex; align-items: center; justify-content: center;
+}
+#print-overlay .pprint {
+  position: fixed; top: 16px; right: 60px;
+  background: #7b3e0a; border: none; color: #f5e8c8;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 20px; border-radius: 4px; cursor: pointer; z-index: 201;
+}
+#print-overlay .pprint:hover { background: #9b4e0e; }
+
+/* ════════════════ SHEET LAYOUT ════════════════ */
+.sp {
+  padding: 8mm 9mm 14mm;
+  min-height: 297mm;
+  display: flex;
+  flex-direction: column;
+  gap: 4mm;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* ── Page border decoration ── */
+.sp::before {
+  content: '';
+  position: absolute; inset: 3.5mm;
+  border: 1.5px solid #7b3e0a;
+  pointer-events: none;
+}
+.sp::after {
+  content: '';
+  position: absolute; inset: 4.5mm;
+  border: 0.5px solid #b87a3a;
+  pointer-events: none;
+}
+
+/* ── Section box ── */
+.sbox {
+  border: 1px solid #8b5a2b;
+  background: rgba(255,255,255,0.55);
+  position: relative;
+}
+.sbox-inner { padding: 2mm 3mm; }
+
+/* ── Section title banner ── */
+.stitle {
+  background: #7b3e0a;
+  color: #f5e8c8;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 7.5pt; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  text-align: center;
+  padding: 1.2mm 3mm;
+  border-bottom: 1px solid #5a2c06;
+}
+
+/* ── Field label ── */
+.flabel {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 6pt; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: #7b3e0a; margin-top: 0.5mm;
+  border-top: 0.5px solid #c8a068;
+  padding-top: 0.5mm;
+}
+
+/* ══ HEADER ══ */
+.sh-header-row {
+  display: flex; align-items: stretch; gap: 3mm;
+}
+.sh-name-block {
+  flex: 1;
+  border: 1px solid #8b5a2b;
+  background: rgba(255,255,255,0.55);
+  padding: 3mm 4mm 2mm;
+}
+.sh-hero-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 26pt; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.02em; line-height: 1; color: #1a0800;
+}
+.sh-identity-val {
+  font-size: 8.5pt; color: #5a3010; font-style: italic; margin-top: 1mm;
+}
+.sh-meta-block {
+  display: flex; flex-direction: column; gap: 2mm;
+  min-width: 46mm;
+}
+.sh-meta-cell {
+  border: 1px solid #8b5a2b;
+  background: rgba(255,255,255,0.55);
+  padding: 1.5mm 3mm 1mm;
+  flex: 1;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.sh-meta-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14pt; font-weight: 700; color: #1a0800; line-height: 1.1;
+}
+
+/* ══ ATTRIBUTES ══ */
+.sh-attrs-row {
+  display: flex; gap: 2mm;
+}
+.sh-attr-box {
+  flex: 1; border: 1px solid #8b5a2b;
+  background: rgba(255,255,255,0.55);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 2mm 1mm 1.5mm;
+}
+.sh-attr-name {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 6.5pt; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1.5mm;
+}
+.sh-attr-name.e { color: #b02020; }
+.sh-attr-name.r { color: #a04010; }
+.sh-attr-name.v { color: #1a6030; }
+.sh-attr-big {
+  font-family: 'Space Mono', monospace; font-size: 26pt; font-weight: 700;
+  line-height: 1;
+}
+.sh-attr-big.e { color: #c03030; }
+.sh-attr-big.r { color: #b05020; }
+.sh-attr-big.v { color: #206040; }
+.sh-attr-sub {
+  font-size: 6pt; color: #8b5a2b; font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.06em; text-transform: uppercase; margin-top: 1mm;
+}
+
+/* ══ TOKEN ZONES ══ */
+.sh-tokens-row { display: flex; gap: 3mm; }
+.sh-token-zone {
+  flex: 1; border: 1px solid #8b5a2b;
+  background: rgba(255,255,255,0.25);
+  min-height: 22mm;
+  display: flex; flex-direction: column;
+}
+.sh-tz-title {
+  background: #7b3e0a; color: #f5e8c8;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 7pt; font-weight: 700;
+  letter-spacing: 0.15em; text-transform: uppercase; text-align: center;
+  padding: 1mm 2mm; border-bottom: 1px solid #5a2c06;
+}
+.sh-tz-body {
+  flex: 1; padding: 2mm;
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
+.sh-tz-hint {
+  font-size: 6.5pt; color: #a07840; font-style: italic; text-align: center;
+  border-top: 0.5px dashed #c8a068; padding-top: 1mm; margin-top: 1mm;
+}
+
+/* ══ POWERS ══ */
+.sh-power-item {
+  display: flex; align-items: flex-start; gap: 2mm;
+  border-bottom: 0.5px solid #d4b88a; padding: 1.5mm 0;
+}
+.sh-power-item:last-child { border-bottom: none; }
+.sh-pow-badge {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 6.5pt; font-weight: 700;
+  letter-spacing: 0.05em; padding: 0.5mm 2mm;
+  white-space: nowrap; flex-shrink: 0; margin-top: 0.3mm;
+  border: 0.5px solid;
+}
+.sh-pow-badge.offc { background: #fde4e4; color: #901818; border-color: #d07070; }
+.sh-pow-badge.offd { background: #fdeadb; color: #883010; border-color: #d09060; }
+.sh-pow-badge.def  { background: #ddeaf8; color: #184080; border-color: #6090c8; }
+.sh-pow-badge.mov  { background: #ddf2e4; color: #145030; border-color: #60a870; }
+.sh-pow-badge.sup  { background: #ece6f8; color: #402090; border-color: #9070c8; }
+.sh-pow-body { flex: 1; }
+.sh-pow-title { font-weight: 600; font-size: 8.5pt; color: #1a0800; }
+.sh-pow-mod {
+  display: inline-block; font-family: 'Space Mono', monospace; font-size: 6.5pt;
+  background: #f5e8c8; border: 0.5px solid #b8882a; color: #7b4a08;
+  padding: 0 1.5mm; margin-left: 1.5mm; vertical-align: middle;
+}
+.sh-pow-desc { font-size: 7.5pt; color: #4a2c10; margin-top: 0.5mm; line-height: 1.35; }
+
+/* ══ BOTTOM THREE-COL ══ */
+.sh-three-col { display: flex; gap: 3mm; }
+.sh-col-apt { flex: 1.1; }
+.sh-col-mid { flex: 1.1; }
+.sh-col-right { flex: 1; }
+
+/* Aptitudes rows */
+.sh-apt-item {
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 0.5px solid #d4b88a; padding: 1mm 1mm 0.8mm;
+}
+.sh-apt-item:last-child { border-bottom: none; }
+.sh-apt-nm { font-size: 7.5pt; color: #1a0800; }
+.sh-apt-sc {
+  font-family: 'Space Mono', monospace; font-size: 8.5pt; font-weight: 700;
+  color: #1a0800; min-width: 6mm; text-align: right;
+}
+.sh-apt-sc.zero { color: #c8b090; }
+
+/* Traits */
+.sh-trait-item {
+  display: flex; justify-content: space-between; align-items: baseline;
+  border-bottom: 0.5px solid #d4b88a; padding: 1mm 1mm 0.8mm;
+}
+.sh-trait-item:last-child { border-bottom: none; }
+.sh-trait-nm { font-size: 7.5pt; color: #1a0800; }
+.sh-trait-bon {
+  font-family: 'Space Mono', monospace; font-size: 7.5pt; font-weight: 700;
+  color: #8b4a08;
+}
+
+/* Complications */
+.sh-compl-item {
+  border-bottom: 0.5px solid #d4b88a; padding: 1.2mm 1mm;
+  font-size: 7.5pt; color: #2a1408; line-height: 1.35;
+}
+.sh-compl-item:last-child { border-bottom: none; }
+.sh-compl-item::before { content: '◆ '; color: #7b3e0a; font-size: 6pt; vertical-align: middle; }
+
+/* Statuts */
+.sh-statut-item {
+  display: flex; align-items: center; gap: 2.5mm;
+  border-bottom: 0.5px solid #d4b88a; padding: 1.5mm 1mm;
+}
+.sh-statut-item:last-child { border-bottom: none; }
+.sh-sbox {
+  width: 4mm; height: 4mm; border: 1px solid;
+  flex-shrink: 0; background: rgba(255,255,255,0.6);
+}
+.sh-sbox.det { border-color: #b8920a; }
+.sh-sbox.ble { border-color: #b05020; }
+.sh-sbox.inc { border-color: #a01818; }
+.sh-slabel { font-size: 8pt; font-weight: 500; }
+.sh-slabel.det { color: #8b6a08; }
+.sh-slabel.ble { color: #8b3810; }
+.sh-slabel.inc { color: #881010; }
+
+/* XP */
+.sh-xp-group { margin-bottom: 2mm; }
+.sh-xp-lbl {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 6.5pt; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: #7b3e0a; margin-bottom: 1.5mm;
+}
+.sh-xp-boxes { display: flex; gap: 1.2mm; flex-wrap: wrap; }
+.sh-xb {
+  width: 5.5mm; height: 5.5mm; border: 0.8px solid #8b5a2b;
+  background: rgba(255,255,255,0.5);
+}
+.sh-xp-note { font-size: 6pt; color: #a07840; margin-top: 1mm; font-style: italic; }
+
+/* ── Footer ── */
+.sh-footer-line {
+  position: absolute; bottom: 7mm; left: 9mm; right: 9mm;
+  border-top: 0.5px solid #b8883a;
+  padding-top: 1.5mm;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.sh-footer-line span {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 6.5pt;
+  letter-spacing: 0.12em; text-transform: uppercase; color: #a07840;
+}
+
+/* ── @media print ── */
+@media print {
+  @page { size: A4 portrait; margin: 0; }
+  html, body { margin: 0; padding: 0; background: #fff !important; }
+  #app, #print-overlay .pclose, #print-overlay .pprint { display: none !important; }
+  #print-overlay {
+    display: block !important; position: static !important;
+    background: none !important; padding: 0 !important; overflow: visible !important;
+  }
+  #print-sheet {
+    width: 210mm !important; min-height: 297mm !important;
+    box-shadow: none !important; margin: 0 !important;
+  }
+  .sp::before, .sp::after { border-color: #7b3e0a; }
+}
+</style>
+
+<script>
+function printSheet() {
+  if (!state || !state.name) { showToast('Sauvegardez d\'abord le personnage.'); return; }
+  buildPrintSheet();
+  document.getElementById('print-overlay').style.display = 'flex';
+}
+function closePrint() {
+  document.getElementById('print-overlay').style.display = 'none';
+}
+
+function buildPrintSheet() {
+  const s = state;
+  const rankLabel = RANK_LABELS[s.rank] || '';
+  const matLabel = { adolescent:'Adolescent', adulte:'Adulte', veteran:'Vétéran' }[s.maturity] || '';
+  const TYPE_MAP = { offc:'Off-C', offd:'Off-D', def:'Def', mov:'Mov', sup:'Sup' };
+
+  /* ── Helpers ── */
+  const xpBoxes = Array.from({length:10}, () => `<span class="sh-xb"></span>`).join('');
+
+  /* ── Header ── */
+  const header = `
+    <div class="sh-header-row">
+      <div class="sh-name-block">
+        <div class="sh-hero-name">${esc(s.name) || '—'}</div>
+        ${s.subtitle ? `<div class="sh-identity-val">${esc(s.subtitle)}</div>` : ''}
+      </div>
+      <div class="sh-meta-block">
+        <div class="sh-meta-cell">
+          <div class="sh-meta-val">${s.rank} — ${rankLabel}</div>
+          <div class="flabel">Rang de puissance</div>
+        </div>
+        <div class="sh-meta-cell">
+          <div class="sh-meta-val" style="font-size:10pt">${matLabel}</div>
+          <div class="flabel">Maturité</div>
+        </div>
+      </div>
+    </div>`;
+
+  /* ── Attributes ── */
+  const attrs = `
+    <div class="sh-attrs-row">
+      <div class="sh-attr-box">
+        <div class="sh-attr-name e">Énergie</div>
+        <div class="sh-attr-big e">${s.energy}</div>
+        <div class="sh-attr-sub">2 pts/+1 · Init.</div>
+      </div>
+      <div class="sh-attr-box">
+        <div class="sh-attr-name r">Récupération</div>
+        <div class="sh-attr-big r">${s.recovery}</div>
+        <div class="sh-attr-sub">3 pts/+1 · Endurance</div>
+      </div>
+      <div class="sh-attr-box">
+        <div class="sh-attr-name v">Vigueur</div>
+        <div class="sh-attr-big v">${s.vigor}</div>
+        <div class="sh-attr-sub">1 pt/+1 · PV max</div>
+      </div>
+      <div class="sh-attr-box" style="flex:2;border:1px solid #8b5a2b;background:rgba(255,255,255,0.55);padding:2mm 3mm">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:6.5pt;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7b3e0a;margin-bottom:1.5mm">Points de héros dépensés</div>
+        <div style="font-family:'Space Mono',monospace;font-size:18pt;font-weight:700;color:#1a0800;line-height:1" id="sh-pts-used">—</div>
+        <div style="font-size:6.5pt;color:#8b5a2b;margin-top:1mm">sur <strong id="sh-pts-max">—</strong> disponibles</div>
+      </div>
+    </div>`;
+
+  /* ── Token zones ── */
+  const tokens = `
+    <div class="sh-tokens-row">
+      <div class="sh-token-zone">
+        <div class="sh-tz-title">Énergie disponible</div>
+        <div class="sh-tz-body">
+          <div class="sh-tz-hint">Posez vos jetons ici</div>
+        </div>
+      </div>
+      <div class="sh-token-zone">
+        <div class="sh-tz-title">Énergie en défense</div>
+        <div class="sh-tz-body">
+          <div class="sh-tz-hint">Posez vos jetons ici</div>
+        </div>
+      </div>
+    </div>`;
+
+  /* ── Powers ── */
+  const powers = (s.powers||[]).filter(p => p.name);
+  const powersHtml = powers.map(p => {
+    const mod = p.mod && p.mod !== '0' ? `<span class="sh-pow-mod">${p.mod}</span>` : '';
+    return `<div class="sh-power-item">
+      <span class="sh-pow-badge ${p.type}">${TYPE_MAP[p.type]||p.type}</span>
+      <div class="sh-pow-body">
+        <div class="sh-pow-title">${esc(p.name)}${mod}</div>
+        ${p.desc ? `<div class="sh-pow-desc">${esc(p.desc)}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  /* ── Aptitudes ── */
+  const aptHtml = APTITUDES.map(name => {
+    const v = s.aptitudes[name] || 0;
+    return `<div class="sh-apt-item">
+      <span class="sh-apt-nm">${name}</span>
+      <span class="sh-apt-sc ${v===0?'zero':''}">${v > 0 ? v : '—'}</span>
+    </div>`;
+  }).join('');
+
+  /* ── Traits ── */
+  const traitsHtml = (s.traits||[]).filter(t=>t.name).map(t =>
+    `<div class="sh-trait-item">
+      <span class="sh-trait-nm">${esc(t.name)}</span>
+      <span class="sh-trait-bon">+${t.bonus}</span>
+    </div>`).join('');
+
+  /* ── Complications ── */
+  const complHtml = (s.complications||[]).filter(c=>c).map(c =>
+    `<div class="sh-compl-item">${esc(c)}</div>`).join('');
+
+  const html = `
+    <button class="pclose" onclick="closePrint()">✕</button>
+    <button class="pprint" onclick="window.print()">🖨 Imprimer / Sauvegarder PDF</button>
+    <div class="sp">
+
+      ${header}
+
+      <!-- Attributs -->
+      <div class="sbox">
+        <div class="stitle">Attributs</div>
+        <div class="sbox-inner" style="padding:2mm 2mm">${attrs}</div>
+      </div>
+
+      <!-- Jetons -->
+      <div class="sbox">
+        <div class="stitle">Jetons d'énergie</div>
+        <div class="sbox-inner">${tokens}</div>
+      </div>
+
+      <!-- Pouvoirs -->
+      ${powers.length ? `
+      <div class="sbox">
+        <div class="stitle">Pouvoirs</div>
+        <div class="sbox-inner">${powersHtml}</div>
+      </div>` : ''}
+
+      <!-- Colonnes basses -->
+      <div class="sh-three-col" style="flex:1">
+
+        <!-- Aptitudes -->
+        <div class="sh-col-apt">
+          <div class="sbox" style="height:100%">
+            <div class="stitle">Aptitudes</div>
+            <div class="sbox-inner" style="padding:0">${aptHtml}</div>
+          </div>
+        </div>
+
+        <!-- Traits + Complications -->
+        <div class="sh-col-mid" style="display:flex;flex-direction:column;gap:3mm">
+          ${traitsHtml ? `
+          <div class="sbox">
+            <div class="stitle">Traits</div>
+            <div class="sbox-inner" style="padding:0">${traitsHtml}</div>
+          </div>` : ''}
+          ${complHtml ? `
+          <div class="sbox">
+            <div class="stitle">Complications</div>
+            <div class="sbox-inner" style="padding:0">${complHtml}</div>
+          </div>` : ''}
+        </div>
+
+        <!-- Statuts + XP -->
+        <div class="sh-col-right" style="display:flex;flex-direction:column;gap:3mm">
+          <div class="sbox">
+            <div class="stitle">Statuts</div>
+            <div class="sbox-inner" style="padding:0">
+              <div class="sh-statut-item"><span class="sh-sbox det"></span><span class="sh-slabel det">Déterminé(e)</span></div>
+              <div class="sh-statut-item"><span class="sh-sbox ble"></span><span class="sh-slabel ble">Blessé(e)</span></div>
+              <div class="sh-statut-item"><span class="sh-sbox inc"></span><span class="sh-slabel inc">Incapacité(e)</span></div>
+            </div>
+          </div>
+          <div class="sbox">
+            <div class="stitle">Expérience</div>
+            <div class="sbox-inner">
+              <div class="sh-xp-group">
+                <div class="sh-xp-lbl">XP Héroïque</div>
+                <div class="sh-xp-boxes">${xpBoxes}</div>
+              </div>
+              <div class="sh-xp-group">
+                <div class="sh-xp-lbl">XP Aptitudes</div>
+                <div class="sh-xp-boxes">${xpBoxes}</div>
+              </div>
+              <div class="sh-xp-note">10 XP = 1 point de héros ou d'aptitude</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /three-col -->
+
+      <div class="sh-footer-line">
+        <span>Energy System</span>
+        <span>${esc(s.name)} · Rang ${s.rank} — ${rankLabel}</span>
+        <span>energysystem.fr</span>
+      </div>
+
+    </div><!-- /sp -->
+  `;
+
+  document.getElementById('print-sheet').innerHTML = html;
+  // fill pts
+  const used = totalCost(), max = maxPts();
+  const pu = document.getElementById('sh-pts-used');
+  const pm = document.getElementById('sh-pts-max');
+  if (pu) { pu.textContent = used; pu.style.color = used > max ? '#a01818' : used === max ? '#7b3e0a' : '#206040'; }
+  if (pm) pm.textContent = max;
 }
 </script>
 
