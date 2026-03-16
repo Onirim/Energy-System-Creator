@@ -1077,6 +1077,7 @@ const MOD_OPTIONS = [
 
 // ── État global ───────────────────────────────────────────────
 let currentUser = null;      // objet user Supabase
+let isAppReady = false;      // true une fois le premier chargement terminé
 let chars = {};              // { id: characterData, ... }
 let editingId = null;        // UUID Supabase du personnage en édition
 let state = null;            // état courant de l'éditeur
@@ -1241,12 +1242,14 @@ async function init() {
 
   // Écoute les changements ultérieurs (login / logout)
   sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN') {
+    if (event === 'SIGNED_IN' && !isAppReady) {
+      // Seulement si on n'est pas déjà dans l'app (retour OAuth Discord)
       await onSignedIn(session.user);
     } else if (event === 'SIGNED_OUT') {
+      isAppReady = false;
       onSignedOut();
     }
-    // INITIAL_SESSION, PASSWORD_RECOVERY, TOKEN_REFRESHED etc. → ignorés
+    // TOKEN_REFRESHED, USER_UPDATED, INITIAL_SESSION → ignorés
   });
 }
 
@@ -1270,6 +1273,7 @@ async function onSignedIn(user) {
   }
   await loadCharsFromDB();
   document.getElementById('loading-overlay').classList.remove('active');
+  isAppReady = true;
   renderList();
   showView('list');
 }
