@@ -1913,6 +1913,7 @@ function changeApt(apt, delta) {
   const cur = state.aptitudes[apt] || 0;
   const nv = Math.max(0, cur + delta);
   const used = calcAptPts();
+  const traitPts = (state.traits||[]).reduce((s,t) => s + (t.bonus||1), 0);
   const max = MATURITY_PTS[state.maturity || 'adulte'] + (state.xp_apt || 0);
   const available = max - traitPts;
   if (delta > 0 && used - traitPts >= available) return;
