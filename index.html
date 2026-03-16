@@ -869,20 +869,6 @@ html, body {
       </div>
       <button class="auth-submit" id="btn-login" onclick="doLogin()">Se connecter</button>
       <div class="auth-error" id="login-error"></div>
-      <div style="text-align:center;margin-top:14px">
-        <button onclick="showResend()" style="background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;text-decoration:underline;padding:0">
-          Pas reçu l'e-mail de confirmation ?
-        </button>
-      </div>
-      <div id="resend-form" style="display:none;margin-top:12px">
-        <div class="auth-field">
-          <label>Votre adresse e-mail</label>
-          <input type="email" id="resend-email" placeholder="vous@exemple.fr" autocomplete="email">
-        </div>
-        <button class="auth-submit" id="btn-resend" onclick="doResend()" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border)">Renvoyer l'e-mail</button>
-        <div class="auth-error" id="resend-error"></div>
-        <div class="auth-success" id="resend-success">E-mail renvoyé ! Vérifiez votre boîte de réception.</div>
-      </div>
     </div>
     <div id="auth-form-signup" style="display:none">
       <div class="auth-field">
@@ -1189,28 +1175,7 @@ async function doSignup() {
   successEl.classList.add('show');
 }
 
-function showResend() {
-  const f = document.getElementById('resend-form');
-  f.style.display = f.style.display === 'none' ? 'block' : 'none';
-  // Pré-remplit avec l'email saisi dans le champ de login si disponible
-  const loginEmail = document.getElementById('login-email').value;
-  if (loginEmail) document.getElementById('resend-email').value = loginEmail;
-}
-
-async function doResend() {
-  const email = document.getElementById('resend-email').value.trim();
-  const errEl = document.getElementById('resend-error');
-  const successEl = document.getElementById('resend-success');
-  const btn = document.getElementById('btn-resend');
-  errEl.classList.remove('show');
-  successEl.classList.remove('show');
-  if (!email) { errEl.textContent = 'Veuillez saisir votre adresse e-mail.'; errEl.classList.add('show'); return; }
-  btn.disabled = true; btn.textContent = 'Envoi…';
-  const { error } = await sb.auth.resend({ type: 'signup', email });
-  btn.disabled = false; btn.textContent = 'Renvoyer l\'e-mail';
-  if (error) { errEl.textContent = translateAuthError(error.message); errEl.classList.add('show'); return; }
-  successEl.classList.add('show');
-}
+function showAuthError(form, msg) {
   const el = document.getElementById(`${form}-error`);
   el.textContent = msg;
   el.classList.add('show');
