@@ -515,14 +515,6 @@ html, body {
 .pow-desc { font-size: 12px; color: var(--text2); margin-top: 3px; }
 .pow-cost { font-family: var(--font-mono); font-size: 12px; color: var(--text3); margin-left: auto; white-space: nowrap; }
 
-/* Stats bars */
-.stat-bars { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
-.stat-bar-row { display: flex; align-items: center; gap: 10px; }
-.stat-bar-row .lbl { font-size: 12px; color: var(--text2); width: 100px; flex-shrink: 0; }
-.stat-bar-track { flex: 1; height: 6px; background: var(--bg4); border-radius: 3px; overflow: hidden; }
-.stat-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-.stat-bar-row .num { font-family: var(--font-mono); font-size: 12px; color: var(--text3); width: 20px; text-align: right; }
-
 /* Aptitudes preview */
 .apt-preview-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
@@ -1698,10 +1690,7 @@ function updatePreview() {
       ${(state.complications||[]).filter(c=>c).map(c=>`<div class="compl-chip">${esc(c)}</div>`).join('')}
     </div>` : '';
 
-  const barMax = 11;
-  const ePct = Math.min(100, (state.energy / barMax) * 100);
-  const rPct = Math.min(100, (state.recovery / barMax) * 100);
-  const vPct = Math.min(100, (state.vigor / barMax) * 100);
+  const barMax = 10;
 
   document.getElementById('preview-content').innerHTML = `
     <div class="preview-header">
@@ -1729,24 +1718,6 @@ function updatePreview() {
         <div class="lbl">Vigueur</div>
         <div class="cost">${state.vigor*1} pts de héros</div>
         <div class="pips">${pipRow(state.vigor, 'v', barMax)}</div>
-      </div>
-    </div>
-
-    <div class="stat-bars" style="margin-top:16px">
-      <div class="stat-bar-row">
-        <span class="lbl">Explosivité</span>
-        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${ePct}%;background:var(--energy-color)"></div></div>
-        <span class="num">${state.energy}</span>
-      </div>
-      <div class="stat-bar-row">
-        <span class="lbl">Endurance</span>
-        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${rPct}%;background:var(--recovery-color)"></div></div>
-        <span class="num">${state.recovery}</span>
-      </div>
-      <div class="stat-bar-row">
-        <span class="lbl">Résistance</span>
-        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${vPct}%;background:var(--vigor-color)"></div></div>
-        <span class="num">${state.vigor}</span>
       </div>
     </div>
 
