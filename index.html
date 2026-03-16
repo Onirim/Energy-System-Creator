@@ -2006,6 +2006,8 @@ function updatePreview() {
           <span class="rank-dots">${[1,2,3,4].map(i=>`<span class="rank-dot ${i<=val?'filled':''}"></span>`).join('')}</span>
         </div>`).join('')}
     </div>` : '';
+
+  const traitsWithName = (state.traits||[]).filter(t=>t.name);
   const traitsHtml = traitsWithName.length ? `
     <div class="preview-section-title">Traits</div>
     <div class="trait-preview">
