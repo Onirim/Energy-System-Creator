@@ -547,6 +547,24 @@ html, body {
   font-size: 13px; color: var(--text2);
 }
 
+/* ══════════════════ SHARED VIEW (lecture seule) ══════════════════ */
+#view-shared {
+  display: none; flex: 1; overflow-y: auto;
+  background: var(--bg); padding: 28px 32px;
+}
+#view-shared.active { display: flex; justify-content: center; }
+
+.shared-card {
+  max-width: 560px; width: 100%;
+}
+.shared-banner {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(232,196,106,0.08); border: 1px solid rgba(232,196,106,0.2);
+  border-radius: 6px; padding: 10px 14px; margin-bottom: 24px;
+  font-size: 12px; color: var(--text3);
+}
+.shared-banner svg { width: 14px; height: 14px; color: var(--accent); flex-shrink: 0; }
+
 /* Toast */
 #toast {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
@@ -1032,6 +1050,11 @@ html, body {
       </div>
     </div>
 
+    <!-- VUE PARTAGÉE (lecture seule) -->
+    <div id="view-shared">
+      <div class="shared-card" id="shared-content"></div>
+    </div>
+
   </div><!-- /main -->
 </div><!-- /app -->
 
@@ -1258,7 +1281,8 @@ async function onSignedIn(user) {
       const data = JSON.parse(decodeURIComponent(atob(hash.slice(5))));
       if (data && data.name) {
         document.getElementById('loading-overlay').classList.remove('active');
-        editChar(null, data);
+        isAppReady = true;
+        showSharedChar(data);
         return;
       }
     } catch(e){}
@@ -1285,6 +1309,7 @@ function onSignedOut() {
 function showView(view) {
   document.getElementById('view-list').classList.toggle('active', view === 'list');
   document.getElementById('view-editor').classList.toggle('active', view === 'editor');
+  document.getElementById('view-shared').classList.toggle('active', view === 'shared');
   document.getElementById('nav-list').classList.toggle('active', view === 'list');
   document.getElementById('nav-editor').classList.toggle('active', view === 'editor');
   document.getElementById('share-btn').style.display = view === 'editor' ? 'flex' : 'none';
@@ -1292,6 +1317,91 @@ function showView(view) {
   if (si) si.classList.remove('show');
   if (view === 'editor') switchMobTab('form');
   if (view === 'list') renderList();
+}
+
+function showSharedChar(data) {
+  const rankLabel = RANK_LABELS[data.rank] || '';
+  const barMax = 10;
+
+  const powHtml = (data.powers||[]).filter(p=>p.name).map(p => {
+    const t = POWER_TYPES.find(t=>t.value===p.type);
+    const modTag = p.mod && p.mod !== '0' ? `<span class="pow-mod-tag">${p.mod}</span>` : '';
+    const cost = (() => { const m = {'+1':2,'+2':4,'-1':-1,'-2':-2}; return Math.max(1, 3+(m[p.mod]||0)); })();
+    return `<div class="preview-power">
+      <span class="pow-badge ${p.type}">${t?.label||p.type}</span>
+      <div class="pow-body">
+        <div class="pow-name">${esc(p.name)}${modTag}</div>
+        ${p.desc ? `<div class="pow-desc">${esc(p.desc)}</div>` : ''}
+      </div>
+      <div class="pow-cost">${cost} pts</div>
+    </div>`;
+  }).join('');
+
+  const aptEntries = Object.entries(data.aptitudes||{}).filter(([,v])=>v>0);
+  const aptHtml = aptEntries.length ? `
+    <div class="preview-section-title">Aptitudes</div>
+    <div class="apt-preview-grid">
+      ${aptEntries.map(([name, val]) => `
+        <div class="apt-preview-row">
+          <span class="name">${name}</span>
+          <span class="rank-dots">${[1,2,3,4].map(i=>`<span class="rank-dot ${i<=val?'filled':''}"></span>`).join('')}</span>
+        </div>`).join('')}
+    </div>` : '';
+
+  const traitsWithName = (data.traits||[]).filter(t=>t.name);
+  const traitsHtml = traitsWithName.length ? `
+    <div class="preview-section-title">Traits</div>
+    <div class="trait-preview">
+      ${traitsWithName.map(t=>`<div class="trait-chip">${esc(t.name)}<span class="bonus">+${t.bonus}</span></div>`).join('')}
+    </div>` : '';
+
+  const complHtml = (data.complications||[]).filter(c=>c).length ? `
+    <div class="preview-section-title">Complications</div>
+    <div class="compl-preview">
+      ${(data.complications||[]).filter(c=>c).map(c=>`<div class="compl-chip">${esc(c)}</div>`).join('')}
+    </div>` : '';
+
+  document.getElementById('shared-content').innerHTML = `
+    <div class="shared-banner">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="13" r="1.5"/>
+        <line x1="5.5" y1="7" x2="10.5" y2="4.3"/><line x1="5.5" y1="9" x2="10.5" y2="11.7"/>
+      </svg>
+      Personnage partagé — consultation uniquement
+    </div>
+
+    <div class="preview-header">
+      <div class="preview-name">${esc(data.name) || '—'}</div>
+      ${data.subtitle ? `<div class="preview-sub">${esc(data.subtitle)}</div>` : ''}
+      <div class="preview-rank-badge">Rang ${data.rank} — ${rankLabel}</div>
+    </div>
+
+    <div class="preview-section-title">Attributs</div>
+    <div class="preview-attrs">
+      <div class="preview-attr e">
+        <div class="val">${data.energy}</div>
+        <div class="lbl">Énergie</div>
+        <div class="pips">${pipRow(data.energy, 'e', barMax)}</div>
+      </div>
+      <div class="preview-attr r">
+        <div class="val">${data.recovery}</div>
+        <div class="lbl">Récupération</div>
+        <div class="pips">${pipRow(data.recovery, 'r', barMax)}</div>
+      </div>
+      <div class="preview-attr v">
+        <div class="val">${data.vigor}</div>
+        <div class="lbl">Vigueur</div>
+        <div class="pips">${pipRow(data.vigor, 'v', barMax)}</div>
+      </div>
+    </div>
+
+    ${(data.powers||[]).filter(p=>p.name).length ? `<div class="preview-section-title">Pouvoirs</div>${powHtml}` : ''}
+    ${aptHtml}
+    ${traitsHtml}
+    ${complHtml}
+  `;
+
+  showView('shared');
 }
 
 function switchMobTab(tab) {
