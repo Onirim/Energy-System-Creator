@@ -1329,16 +1329,31 @@ function setSaveIndicator(state, msg) {
 // ══════════════════════════════════════════════════════════════
 
 async function init() {
-  // ── Chargement initial : on vérifie la session immédiatement ──
-  const { data: { session } } = await sb.auth.getSession();
-  if (session?.user) {
-    await onSignedIn(session.user);
-  } else {
+  // Timeout de sécurité : si rien ne répond en 5s, on affiche la connexion
+  const safetyTimer = setTimeout(() => {
+    console.warn('ES: timeout auth — affichage écran connexion');
+    onSignedOut();
+  }, 5000);
+
+  try {
+    console.log('ES: vérification session…');
+    const { data: { session }, error } = await sb.auth.getSession();
+    console.log('ES: getSession →', session ? 'session trouvée' : 'pas de session', error || '');
+    clearTimeout(safetyTimer);
+    if (session?.user) {
+      await onSignedIn(session.user);
+    } else {
+      onSignedOut();
+    }
+  } catch(e) {
+    console.error('ES: erreur init →', e);
+    clearTimeout(safetyTimer);
     onSignedOut();
   }
 
-  // ── Écoute les changements ultérieurs (login / logout) ────────
+  // Écoute les changements ultérieurs (login / logout)
   sb.auth.onAuthStateChange(async (event, session) => {
+    console.log('ES: onAuthStateChange →', event);
     if (event === 'SIGNED_IN' && session?.user) {
       await onSignedIn(session.user);
     } else if (event === 'SIGNED_OUT') {
