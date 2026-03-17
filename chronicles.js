@@ -24,7 +24,7 @@ let entryState         = null; // état formulaire entrée
 async function loadChroniclesFromDB() {
   const { data, error } = await sb
     .from('chronicles')
-    .select('id, title, description, is_public, share_code, updated_at')
+    .select('id, title, description, is_public, share_code, illustration_url, illustration_position, updated_at')
     .eq('user_id', currentUser.id)
     .order('updated_at', { ascending: false });
   if (error) { console.error('Erreur chargement chroniques:', error); return; }
@@ -43,7 +43,7 @@ async function loadFollowedChroniclesFromDB() {
 
   const { data } = await sb
     .from('chronicles')
-    .select('id, title, description, is_public, share_code, updated_at, profiles(username)')
+    .select('id, title, description, is_public, share_code, illustration_url, illustration_position, updated_at, profiles(username)')
     .in('id', followedChrIds)
     .eq('is_public', true);
 
@@ -73,10 +73,12 @@ async function loadEntriesForChronicle(chrId) {
 async function saveChronicleToDB() {
   if (!chrState.title.trim()) { alert('Donnez un titre à la chronique.'); return; }
   const payload = {
-    user_id:     currentUser.id,
-    title:       chrState.title.trim(),
-    description: chrState.description,
-    is_public:   chrState.is_public || false,
+    user_id:               currentUser.id,
+    title:                 chrState.title.trim(),
+    description:           chrState.description,
+    is_public:             chrState.is_public || false,
+    illustration_url:      chrState.illustration_url || '',
+    illustration_position: chrState.illustration_position || 0,
   };
   const isUUID = editingChrId &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(editingChrId);
@@ -218,6 +220,7 @@ function chrCardHTML(id, c, isFollowed) {
 
   if (isFollowed) {
     return `<div class="chr-card" onclick="showChrDetail('${id}')">
+      ${c.illustration_url ? `<img class="card-illus" src="${esc(c.illustration_url)}" style="object-position:center ${c.illustration_position||0}%" onclick="event.stopPropagation();openLightbox('${esc(c.illustration_url)}')" alt="">` : ''}
       <div class="chr-card-actions">
         <button class="icon-btn danger" onclick="event.stopPropagation();unfollowChronicle('${id}')" title="Se désabonner">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3,4 13,4"/><path d="M5 4V2h6v2M6 7v5M10 7v5"/><path d="M4 4l1 10h6l1-10"/></svg>
@@ -238,6 +241,7 @@ function chrCardHTML(id, c, isFollowed) {
     : `<span class="card-visibility private">🔒 Privée</span>`;
 
   return `<div class="chr-card" onclick="showChrDetail('${id}')">
+    ${c.illustration_url ? `<img class="card-illus" src="${esc(c.illustration_url)}" style="object-position:center ${c.illustration_position||0}%" onclick="event.stopPropagation();openLightbox('${esc(c.illustration_url)}')" alt="">` : ''}
     <div class="chr-card-actions">
       <button class="icon-btn" onclick="event.stopPropagation();openChrEditor('${id}')" title="Modifier">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 2l3 3-9 9H2v-3z"/></svg>
@@ -283,6 +287,7 @@ function renderChrDetail() {
     : `<div class="chr-no-entries">Aucune entrée pour l'instant.</div>`;
 
   document.getElementById('chr-detail-content').innerHTML = `
+    ${chr.illustration_url ? `<img class="preview-illus" src="${esc(chr.illustration_url)}" style="object-position:center ${chr.illustration_position||0}%" onclick="openLightbox('${esc(chr.illustration_url)}')" alt="">` : ''}
     <div class="chr-detail-header">
       <div>
         <div class="chr-detail-title">${esc(chr.title)}</div>
@@ -334,7 +339,8 @@ function entryRowHTML(e, isOwn) {
 
 function newChronicle() {
   editingChrId = null;
-  chrState = { title: '', description: '', is_public: false, share_code: null };
+  chrState = { title: '', description: '', is_public: false, share_code: null,
+               illustration_url: '', illustration_position: 0 };
   populateChrEditor();
   showView('chr-editor');
 }
@@ -353,6 +359,7 @@ function populateChrEditor() {
   pub.checked = chrState.is_public || false;
   document.getElementById('chr-public-label').textContent =
     pub.checked ? 'Publique (abonnement actif)' : 'Privée';
+  setChrIllusPreview(chrState.illustration_url || '', chrState.illustration_position || 0);
   updateChrShareCodeBox();
 }
 
@@ -470,9 +477,72 @@ function openEntryReader(entryId) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// TABS MOBILE — éditeur entrée
+// ILLUSTRATION — CHRONIQUE
+// Réutilise le bucket character-illustrations, sous-dossier chr/
 // ══════════════════════════════════════════════════════════════
 
-function switchChrTab(tab) {
-  // Pour compatibilité (appelé par showView)
+function chrIllusZoneClick() {
+  if (!chrState.illustration_url) document.getElementById('chr-illus-input').click();
+}
+
+function setChrIllusPreview(url, position) {
+  const img         = document.getElementById('chr-illus-preview-img');
+  const placeholder = document.getElementById('chr-illus-placeholder');
+  const zone        = document.getElementById('chr-illus-zone');
+  const sliderWrap  = document.getElementById('chr-illus-slider-wrap');
+  const slider      = document.getElementById('chr-illus-pos-slider');
+  const pos = position !== undefined ? position : (chrState?.illustration_position || 0);
+  if (url) {
+    img.src = url; img.style.display = 'block';
+    img.style.objectPosition = `center ${pos}%`;
+    placeholder.style.display = 'none';
+    zone.classList.add('has-image');
+    sliderWrap.classList.add('visible');
+    slider.value = pos;
+  } else {
+    img.src = ''; img.style.display = 'none';
+    placeholder.style.display = 'flex';
+    zone.classList.remove('has-image');
+    sliderWrap.classList.remove('visible');
+    slider.value = 0;
+  }
+}
+
+function updateChrIllusPosition(val) {
+  chrState.illustration_position = parseInt(val);
+  const img = document.getElementById('chr-illus-preview-img');
+  if (img) img.style.objectPosition = `center ${val}%`;
+}
+
+async function uploadChrIllustration(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) { showToast('Image trop lourde (max 3 Mo).'); return; }
+
+  document.getElementById('chr-illus-uploading').classList.add('active');
+  const fileId = editingChrId || ('tmp_' + Date.now());
+  const ext    = file.name.split('.').pop().toLowerCase();
+  const path   = `${currentUser.id}/chr_${fileId}.${ext}`;
+
+  const { error } = await sb.storage
+    .from('character-illustrations')
+    .upload(path, file, { upsert: true, contentType: file.type });
+  document.getElementById('chr-illus-uploading').classList.remove('active');
+  if (error) { showToast('Erreur upload : ' + error.message); return; }
+
+  const { data } = sb.storage.from('character-illustrations').getPublicUrl(path);
+  chrState.illustration_url      = data.publicUrl;
+  chrState.illustration_position = 0;
+  setChrIllusPreview(chrState.illustration_url, 0);
+  showToast('Illustration ajoutée !');
+  input.value = '';
+}
+
+async function removeChrIllustration() {
+  if (!chrState.illustration_url) return;
+  const pathMatch = chrState.illustration_url.match(/character-illustrations\/(.+)$/);
+  if (pathMatch) await sb.storage.from('character-illustrations').remove([pathMatch[1]]);
+  chrState.illustration_url      = '';
+  chrState.illustration_position = 0;
+  setChrIllusPreview('', 0);
 }
