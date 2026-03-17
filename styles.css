@@ -1068,3 +1068,53 @@ html, body {
   letter-spacing: 0.06em; text-transform: uppercase;
 }
 .filter-clear:hover { color: var(--text); }
+/* ── Partage / Suivi ── */
+.share-code-box {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 12px; margin-top: 8px;
+}
+.share-code-box .code {
+  font-family: var(--font-mono); font-size: 15px; font-weight: 700;
+  color: var(--accent); letter-spacing: 0.12em; flex: 1;
+}
+.share-code-box button {
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); padding: 2px 4px; border-radius: 3px;
+  transition: color 0.15s; font-size: 11px; font-family: var(--font-display);
+  font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.share-code-box button:hover { color: var(--accent); }
+
+.followed-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-family: var(--font-mono);
+  background: rgba(155,125,232,0.12); color: var(--sup);
+  border: 1px solid rgba(155,125,232,0.25);
+  padding: 2px 7px; border-radius: 3px; margin-top: 6px;
+}
+.card-followed-owner {
+  font-size: 11px; color: var(--text3); margin-top: 4px;
+  font-style: italic;
+}
+
+.follow-input-wrap {
+  display: flex; gap: 8px; align-items: center; margin-bottom: 20px;
+}
+.follow-input-wrap input {
+  flex: 1; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--text); font-family: var(--font-mono);
+  font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 8px 12px; outline: none; transition: border-color 0.15s;
+  max-width: 200px;
+}
+.follow-input-wrap input:focus { border-color: var(--accent); }
+.follow-input-wrap input::placeholder { text-transform: none; letter-spacing: 0; color: var(--text3); font-family: var(--font-body); font-size: 12px; }
+.btn-follow {
+  background: var(--bg3); border: 1px solid var(--border2);
+  color: var(--text2); font-family: var(--font-display); font-size: 12px;
+  font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-follow:hover { border-color: var(--sup); color: var(--sup); }
