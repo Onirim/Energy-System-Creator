@@ -33,9 +33,11 @@ let isAppReady = false;
 let chars = {};
 let editingId = null;
 let state = null;
-let allTags = [];          // tous les tags de l'utilisateur { id, name, color }
-let activeTagFilters = []; // IDs des tags actifs dans le filtre roster
-let charTagMap = {};       // { charId: [tagId, ...] }
+let allTags = [];
+let activeTagFilters = [];
+let charTagMap = {};
+let followedChars = {};    // { character_id: { ...charData, _owner_name } }
+let followedIds = [];      // liste des character_id suivis
 
 // ══════════════════════════════════════════════════════════════
 // AUTH — Discord uniquement
@@ -103,7 +105,7 @@ function updateUserUI(user) {
 async function loadCharsFromDB() {
   const { data, error } = await sb
     .from('characters')
-    .select('id, name, rank, is_public, data, updated_at')
+    .select('id, name, rank, is_public, share_code, data, updated_at')
     .eq('user_id', currentUser.id)
     .order('updated_at', { ascending: false });
   if (error) { console.error('Erreur chargement:', error); return; }
@@ -114,10 +116,12 @@ async function loadCharsFromDB() {
       name: row.name,
       rank: row.rank,
       is_public: row.is_public,
+      share_code: row.share_code,
       _db_id: row.id,
     };
   });
   await loadTagsFromDB();
+  await loadFollowedCharsFromDB();
 }
 
 async function saveCharToDB() {
@@ -133,14 +137,12 @@ async function saveCharToDB() {
   };
 
   let result;
-  // Vérifie que editingId est bien un UUID valide (format Supabase)
-  // Un ID hérité de l'ancienne version localStorage (ex: "char_123456") serait rejeté par Postgres
   const isValidUUID = editingId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(editingId);
   if (isValidUUID) {
-    result = await sb.from('characters').update(payload).eq('id', editingId).select('id').single();
+    result = await sb.from('characters').update(payload).eq('id', editingId).select('id, share_code').single();
   } else {
-    if (editingId) editingId = null; // reset l'ID invalide
-    result = await sb.from('characters').insert(payload).select('id').single();
+    if (editingId) editingId = null;
+    result = await sb.from('characters').insert(payload).select('id, share_code').single();
   }
 
   if (result.error) {
@@ -151,10 +153,17 @@ async function saveCharToDB() {
   }
 
   editingId = result.data.id;
+  state.share_code = result.data.share_code;
   await saveCharTagsToDB(editingId);
-  // Met à jour le cache local
   chars[editingId] = { ...state, _db_id: editingId };
   charTagMap[editingId] = (state.tags || []).map(t => t.id);
+  // Met à jour l'affichage du share_code si public
+  const scBox = document.getElementById('share-code-box');
+  const scVal = document.getElementById('share-code-val');
+  if (scBox && scVal && state.is_public && state.share_code) {
+    scVal.textContent = state.share_code;
+    scBox.style.display = 'flex';
+  }
   setSaveIndicator('saved', 'Sauvegardé ✓');
   showToast('Personnage sauvegardé !');
 }
@@ -183,6 +192,81 @@ async function loadTagsFromDB() {
     if (!charTagMap[character_id]) charTagMap[character_id] = [];
     charTagMap[character_id].push(tag_id);
   });
+}
+
+// ══════════════════════════════════════════════════════════════
+// SUIVI DE PERSONNAGES
+// ══════════════════════════════════════════════════════════════
+
+async function loadFollowedCharsFromDB() {
+  // Récupère les IDs suivis
+  const { data: followed } = await sb
+    .from('followed_characters')
+    .select('character_id')
+    .eq('user_id', currentUser.id);
+  followedIds = (followed || []).map(r => r.character_id);
+  if (!followedIds.length) { followedChars = {}; return; }
+
+  // Récupère les données à jour des personnages suivis + profil propriétaire
+  const { data: chars_data } = await sb
+    .from('characters')
+    .select('id, name, rank, is_public, share_code, data, profiles(username)')
+    .in('id', followedIds)
+    .eq('is_public', true);
+
+  followedChars = {};
+  (chars_data || []).forEach(row => {
+    followedChars[row.id] = {
+      ...row.data,
+      name: row.name,
+      rank: row.rank,
+      is_public: row.is_public,
+      share_code: row.share_code,
+      _db_id: row.id,
+      _followed: true,
+      _owner_name: row.profiles?.username || '?',
+    };
+  });
+}
+
+async function followCharByCode(code) {
+  if (!code.trim()) return;
+  const clean = code.trim().toUpperCase();
+
+  // Cherche le personnage par share_code
+  const { data, error } = await sb
+    .from('characters')
+    .select('id, name, user_id, is_public')
+    .eq('share_code', clean)
+    .eq('is_public', true)
+    .single();
+
+  if (error || !data) { showToast('Code introuvable ou personnage non public.'); return; }
+  if (data.user_id === currentUser.id) { showToast('C\'est votre propre personnage !'); return; }
+  if (followedIds.includes(data.id)) { showToast('Vous suivez déjà ce personnage.'); return; }
+
+  const { error: insertError } = await sb
+    .from('followed_characters')
+    .insert({ user_id: currentUser.id, character_id: data.id });
+
+  if (insertError) { showToast('Erreur lors du suivi.'); return; }
+
+  followedIds.push(data.id);
+  await loadFollowedCharsFromDB();
+  document.getElementById('follow-code-input').value = '';
+  renderList();
+  showToast(`"${data.name}" ajouté à votre roster !`);
+}
+
+async function unfollowChar(charId) {
+  await sb.from('followed_characters')
+    .delete()
+    .eq('user_id', currentUser.id)
+    .eq('character_id', charId);
+  followedIds = followedIds.filter(id => id !== charId);
+  delete followedChars[charId];
+  renderList();
+  showToast('Personnage retiré du roster.');
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -633,19 +717,50 @@ function renderList() {
     });
   }
 
-  document.getElementById('list-count-badge').textContent = keys.length ? `(${keys.length})` : '';
+  // Ajoute les personnages suivis (non filtrés par tags)
+  const followedKeys = Object.keys(followedChars);
+  const allKeys = [...keys, ...followedKeys];
+  const total = Object.keys(chars).length + followedKeys.length;
+
+  document.getElementById('list-count-badge').textContent = total ? `(${total})` : '';
   const grid = document.getElementById('char-grid');
   const empty = document.getElementById('empty-state');
-  if (!keys.length) { grid.innerHTML = ''; empty.style.display = 'flex'; return; }
+  if (!allKeys.length) { grid.innerHTML = ''; empty.style.display = 'flex'; return; }
   empty.style.display = 'none';
-  grid.innerHTML = keys.map(id => cardHTML(id, chars[id])).join('');
+  grid.innerHTML = [
+    ...keys.map(id => cardHTML(id, chars[id])),
+    ...followedKeys.map(id => cardHTML(id, followedChars[id], true)),
+  ].join('');
 }
 
-function cardHTML(id, c) {
+function cardHTML(id, c, isFollowed = false) {
   const rankLabel = RANK_LABELS[c.rank] || 'Inconnu';
   const pwrTags = (c.powers||[]).map(p =>
     `<span class="card-power-tag" style="${powerTagStyle(p.type)}">${POWER_TYPES.find(t=>t.value===p.type)?.label||p.type}</span>`
   ).join('');
+
+  if (isFollowed) {
+    return `<div class="char-card" onclick="showSharedChar(followedChars['${id}'])">
+      ${c.illustration_url ? `<img class="card-illus" src="${esc(c.illustration_url)}" style="object-position:center ${c.illustration_position||0}%" onclick="event.stopPropagation();openLightbox('${esc(c.illustration_url)}')" alt="">` : ''}
+      <div class="card-actions">
+        <button class="icon-btn danger" onclick="event.stopPropagation();unfollowChar('${id}')" title="Ne plus suivre">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3,4 13,4"/><path d="M5 4V2h6v2M6 7v5M10 7v5"/><path d="M4 4l1 10h6l1-10"/></svg>
+        </button>
+      </div>
+      <div class="card-name">${esc(c.name) || 'Sans nom'}</div>
+      <div class="card-sub">${esc(c.subtitle) || ''}</div>
+      <div class="card-rank">Rang ${c.rank} — ${rankLabel}</div>
+      <div class="card-attrs">
+        <div class="card-attr e"><div class="val">${c.energy||1}</div><div class="lbl">Énergie</div></div>
+        <div class="card-attr r"><div class="val">${c.recovery||1}</div><div class="lbl">Récup.</div></div>
+        <div class="card-attr v"><div class="val">${c.vigor||1}</div><div class="lbl">Vigueur</div></div>
+      </div>
+      <div class="card-powers">${pwrTags}</div>
+      <div class="followed-badge">👁 Suivi</div>
+      <div class="card-followed-owner">par ${esc(c._owner_name)}</div>
+    </div>`;
+  }
+
   const visTag = c.is_public
     ? `<span class="card-visibility public">🔗 Public</span>`
     : `<span class="card-visibility private">🔒 Privé</span>`;
@@ -737,6 +852,18 @@ function populateEditor() {
   if (pubCb) {
     pubCb.checked = state.is_public || false;
     document.getElementById('public-label').textContent = pubCb.checked ? 'Public (lien de partage actif)' : 'Privé';
+  }
+  // Affiche le share_code si le personnage est public et sauvegardé
+  const scBox = document.getElementById('share-code-box');
+  const scVal = document.getElementById('share-code-val');
+  if (scBox && scVal) {
+    const code = state.share_code || (editingId && chars[editingId]?.share_code) || null;
+    if (state.is_public && code) {
+      scVal.textContent = code;
+      scBox.style.display = 'flex';
+    } else {
+      scBox.style.display = 'none';
+    }
   }
   document.getElementById('val-e').textContent = state.energy;
   document.getElementById('val-r').textContent = state.recovery;
@@ -1000,6 +1127,13 @@ function updatePreview() {
     state.is_public = pubCb.checked;
     document.getElementById('public-label').textContent = pubCb.checked ? 'Public (lien de partage actif)' : 'Privé';
   }
+  const scBox = document.getElementById('share-code-box');
+  const scVal = document.getElementById('share-code-val');
+  if (scBox && scVal) {
+    const code = state.share_code || (editingId && chars[editingId]?.share_code) || null;
+    if (state.is_public && code) { scVal.textContent = code; scBox.style.display = 'flex'; }
+    else scBox.style.display = 'none';
+  }
 
   const rankLabel = RANK_LABELS[state.rank] || '';
   const used = totalCost(); const max = maxPts();
@@ -1229,6 +1363,14 @@ function shareChar() {
     .catch(() => prompt('Copiez ce lien :', url));
 }
 
+function copyShareCode() {
+  const code = document.getElementById('share-code-val')?.textContent;
+  if (!code || code === '—') return;
+  navigator.clipboard.writeText(code)
+    .then(() => showToast(`Code "${code}" copié !`))
+    .catch(() => prompt('Code de partage :', code));
+}
+
 // ── Toast ─────────────────────────────────────────────────────
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -1247,4 +1389,3 @@ function esc(s) {
 // L'app démarre masquée, init() gère tout via onAuthStateChange
 document.getElementById('app').style.display = 'none';
 init();
-
