@@ -20,6 +20,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="chronicles.css" />
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
 </head>
 <body>
 <!-- Loading overlay -->
@@ -50,10 +52,18 @@
     <div class="logo">Energy <span>System</span></div>
     <nav>
       <button id="nav-list" class="active" onclick="showView('list')">Personnages</button>
+      <button id="nav-chronicles" onclick="showView('chronicles')">Chroniques</button>
     </nav>
     <div class="spacer"></div>
     <span class="save-indicator" id="save-indicator"></span>
     <button class="share-btn" id="share-btn" onclick="shareChar()" style="display:none">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="13" r="1.5"/>
+        <line x1="5.5" y1="7" x2="10.5" y2="4.3"/><line x1="5.5" y1="9" x2="10.5" y2="11.7"/>
+      </svg>
+      Partager
+    </button>
+    <button class="share-btn" id="chr-share-btn" onclick="shareChrBtn()" style="display:none">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
         <circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="13" r="1.5"/>
         <line x1="5.5" y1="7" x2="10.5" y2="4.3"/><line x1="5.5" y1="9" x2="10.5" y2="11.7"/>
@@ -346,6 +356,97 @@
       <div class="shared-card" id="shared-content"></div>
     </div>
 
+    <!-- VUE CHRONIQUES — liste -->
+    <div id="view-chronicles">
+      <div class="list-header">
+        <div>
+          <h1>Chroniques <span id="chr-count-badge"></span></h1>
+          <div class="count">Récits de campagne</div>
+        </div>
+        <button class="btn-primary" onclick="newChronicle()">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg>
+          Nouvelle chronique
+        </button>
+      </div>
+      <div class="chr-follow-wrap">
+        <input type="text" id="chr-follow-input" placeholder="Code de partage (ex: A3F8C2D1)"
+          maxlength="8" oninput="this.value=this.value.toUpperCase()"
+          onkeydown="if(event.key==='Enter') followChrByCode(this.value)">
+        <button class="btn-follow-chr" onclick="followChrByCode(document.getElementById('chr-follow-input').value)">
+          + Suivre une chronique
+        </button>
+      </div>
+      <div id="chr-grid" class="chr-grid"></div>
+      <div id="chr-empty-state" class="empty-state" style="display:none">
+        <div class="icon">📖</div>
+        <h2>Aucune chronique</h2>
+        <p>Rédigez le récit de vos aventures ou abonnez-vous aux chroniques d'autres joueurs.</p>
+        <button class="btn-primary" onclick="newChronicle()">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg>
+          Créer une chronique
+        </button>
+      </div>
+    </div>
+
+    <!-- VUE ÉDITEUR CHRONIQUE -->
+    <div id="view-chr-editor">
+      <div id="chr-mobile-tabs">
+        <button id="chr-mob-tab-form" class="active" onclick="switchChrTab('form')">✏️ Éditer</button>
+        <button id="chr-mob-tab-preview" onclick="switchChrTab('preview')">👁 Aperçu</button>
+      </div>
+      <div id="chr-editor-form">
+        <div class="chr-title-field">
+          <input type="text" id="chr-f-title" placeholder="Titre de la chronique"
+            oninput="updateChrPreview()">
+        </div>
+        <div class="chr-options">
+          <div class="chr-public-row">
+            <label>Partage public</label>
+            <label class="chr-public-toggle">
+              <input type="checkbox" id="chr-f-public" onchange="updateChrPreview()"
+                style="width:auto;accent-color:var(--sup)">
+              <span id="chr-public-label">Privée</span>
+            </label>
+          </div>
+          <div class="chr-share-code-box" id="chr-share-code-box" style="display:none">
+            <span class="code" id="chr-share-code-val">—</span>
+            <button onclick="copyChrShareCode()">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13">
+                <rect x="5" y="5" width="8" height="8" rx="1"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1"/>
+              </svg>
+              Copier
+            </button>
+          </div>
+        </div>
+        <div class="chr-md-hint">
+          <strong># Titre</strong> &nbsp;
+          <strong>## Sous-titre</strong> &nbsp;
+          <strong>**gras**</strong> &nbsp;
+          <strong>*italique*</strong> &nbsp;
+          <strong>> citation</strong> &nbsp;
+          <strong>---</strong> séparateur
+        </div>
+        <div class="chr-content-field">
+          <textarea id="chr-f-content"
+            placeholder="Rédigez votre chronique en Markdown…"
+            oninput="updateChrPreview()"></textarea>
+        </div>
+        <div class="chr-form-actions">
+          <button class="btn-cancel" onclick="showView('chronicles')">Annuler</button>
+          <button class="btn-cancel" id="chr-mob-preview-btn" onclick="switchChrTab('preview')" style="display:none">Aperçu</button>
+          <button class="btn-save" style="background:var(--sup)" onclick="saveChronicleToDB()">Sauvegarder</button>
+        </div>
+      </div>
+      <div id="chr-preview-panel">
+        <div class="chr-preview-card" id="chr-preview-content"></div>
+      </div>
+    </div>
+
+    <!-- VUE LECTEUR CHRONIQUE (lecture seule) -->
+    <div id="view-chr-reader">
+      <div id="chr-reader-content"></div>
+    </div>
+
   </div><!-- /main -->
 </div><!-- /app -->
 
@@ -364,6 +465,7 @@
     });
   }
 </script>
+<script src="chronicles.js" defer></script>
 <script src="scripts.js" defer></script>
 
 </body>
