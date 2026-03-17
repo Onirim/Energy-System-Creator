@@ -2203,12 +2203,12 @@ async function uploadIllustration(input) {
   // Affiche le spinner
   document.getElementById('illus-uploading').classList.add('active');
 
-  // On a besoin d'un ID stable pour le fichier — on utilise l'editingId
-  // ou on en génère un temporaire qui sera réutilisé à la sauvegarde
-  if (!editingId) editingId = 'char_' + Date.now();
+  // On utilise l'editingId s'il existe, sinon on génère un ID temporaire pour le nom de l'image.
+  // On ne modifie pas la variable globale editingId pour ne pas bloquer la sauvegarde Supabase (UUID).
+  const imageId = editingId || ('char_' + Date.now());
 
   const ext = file.name.split('.').pop().toLowerCase();
-  const path = `${currentUser.id}/${editingId}.${ext}`;
+  const path = `${currentUser.id}/${imageId}.${ext}`;
 
   const { error } = await sb.storage
     .from('character-illustrations')
