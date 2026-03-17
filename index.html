@@ -311,7 +311,6 @@ html, body {
 .pts-bar .pts-value { font-family: var(--font-mono); font-size: 15px; font-weight: 700; }
 .pts-bar .pts-value.ok { color: var(--mov); }
 .pts-bar .pts-value.over { color: var(--offc); }
-.pts-bar .pts-value.exact { color: var(--accent); }
 
 /* Power rows */
 .power-entry {
@@ -2198,7 +2197,7 @@ function updatePtsDisplay() {
   const max = maxPts();
   const el = document.getElementById('pts-display');
   el.textContent = `${used} / ${max}`;
-  el.className = 'pts-value ' + (used > max ? 'over' : used === max ? 'exact' : 'ok');
+  el.className = 'pts-value ' + (used > max ? 'over' : 'ok');
   ['e','r','v'].forEach(a => {
     const key = {e:'energy',r:'recovery',v:'vigor'}[a];
     const costs = {e:2,r:3,v:1};
@@ -2292,11 +2291,6 @@ function renderAptitudes() {
 function changeApt(apt, delta) {
   const cur = state.aptitudes[apt] || 0;
   const nv = Math.max(0, cur + delta);
-  const used = calcAptPts();
-  const traitPts = (state.traits||[]).reduce((s,t) => s + (t.bonus||1), 0);
-  const max = MATURITY_PTS[state.maturity || 'adulte'] + (state.xp_apt || 0);
-  const available = max - traitPts;
-  if (delta > 0 && used - traitPts >= available) return;
   state.aptitudes[apt] = nv;
   const el = document.getElementById(`apt-${apt.replace(/\s/g,'_')}`);
   if (el) { el.textContent = nv; el.className = `apt-val ${nv===0?'zero':''}`; }
@@ -2349,8 +2343,6 @@ function removeTrait(i) {
 function changeTrait(i, delta) {
   const t = state.traits[i];
   const nv = Math.max(1, (t.bonus||1) + delta);
-  const used = calcAptPts();
-  const max = MATURITY_PTS[state.maturity || 'adulte'] + (state.xp_apt || 0);
   t.bonus = nv;
   renderTraits(); updateAptPtsDisplay(); updatePreview();
 }
