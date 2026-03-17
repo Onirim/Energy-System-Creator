@@ -532,19 +532,6 @@ async function onSignedIn(user) {
   document.getElementById('auth-screen').classList.remove('active');
   document.getElementById('loading-overlay').classList.add('active');
   document.getElementById('app').style.display = 'flex';
-  // Personnage partagé via URL ?
-  const hash = location.hash.slice(1);
-  if (hash.startsWith('char=')) {
-    try {
-      const data = JSON.parse(decodeURIComponent(atob(hash.slice(5))));
-      if (data && data.name) {
-        document.getElementById('loading-overlay').classList.remove('active');
-        isAppReady = true;
-        showSharedChar(data);
-        return;
-      }
-    } catch(e){}
-  }
   await loadCharsFromDB();
   document.getElementById('loading-overlay').classList.remove('active');
   isAppReady = true;
@@ -1341,12 +1328,14 @@ function shareChar() {
     showToast('Activez le partage public pour ce personnage, puis sauvegardez d\'abord.');
     return;
   }
-  const data = JSON.stringify(state);
-  const encoded = btoa(encodeURIComponent(data));
-  const url = location.origin + location.pathname + '#char=' + encoded;
-  navigator.clipboard.writeText(url)
-    .then(() => showToast('Lien copié dans le presse-papier !'))
-    .catch(() => prompt('Copiez ce lien :', url));
+  const code = state.share_code || (editingId && chars[editingId]?.share_code);
+  if (!code) {
+    showToast('Sauvegardez d\'abord le personnage pour générer son code de partage.');
+    return;
+  }
+  navigator.clipboard.writeText(code)
+    .then(() => showToast(`Code "${code}" copié dans le presse-papier !`))
+    .catch(() => prompt('Code de partage à transmettre :', code));
 }
 
 function copyShareCode() {
@@ -1375,4 +1364,3 @@ function esc(s) {
 // L'app démarre masquée, init() gère tout via onAuthStateChange
 document.getElementById('app').style.display = 'none';
 init();
-
