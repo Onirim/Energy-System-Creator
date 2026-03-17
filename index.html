@@ -98,6 +98,14 @@
         <div id="filter-tags-list" style="display:flex;flex-wrap:wrap;gap:6px"></div>
         <button class="filter-clear" id="filter-clear-btn" onclick="clearTagFilters()" style="display:none">Tout afficher</button>
       </div>
+      <div class="follow-input-wrap">
+        <input type="text" id="follow-code-input" placeholder="Code de partage (ex: A3F8C2D1)"
+          maxlength="8" oninput="this.value=this.value.toUpperCase()"
+          onkeydown="if(event.key==='Enter') followCharByCode(this.value)">
+        <button class="btn-follow" onclick="followCharByCode(document.getElementById('follow-code-input').value)">
+          + Suivre un personnage
+        </button>
+      </div>
       <div id="char-grid" class="char-grid"></div>
       <div id="empty-state" class="empty-state" style="display:none">
         <div class="icon">⚡</div>
@@ -189,6 +197,15 @@
               <input type="checkbox" id="f-public" onchange="updatePreview()" style="width:auto;accent-color:var(--accent)">
               <span style="font-size:12px;color:var(--text3)" id="public-label">Privé</span>
             </label>
+          </div>
+          <div class="share-code-box" id="share-code-box" style="display:none">
+            <span class="code" id="share-code-val">—</span>
+            <button onclick="copyShareCode()" title="Copier le code">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13">
+                <rect x="5" y="5" width="8" height="8" rx="1"/><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1"/>
+              </svg>
+              Copier
+            </button>
           </div>
         </div>
 
