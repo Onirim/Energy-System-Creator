@@ -582,25 +582,26 @@ function onSignedOut() {
 // ══════════════════════════════════════════════════════════════
 
 function showView(view) {
-  document.getElementById('view-list').classList.toggle('active', view === 'list');
-  document.getElementById('view-editor').classList.toggle('active', view === 'editor');
-  document.getElementById('view-shared').classList.toggle('active', view === 'shared');
-  document.getElementById('view-chronicles').classList.toggle('active', view === 'chronicles');
-  document.getElementById('view-chr-editor').classList.toggle('active', view === 'chr-editor');
-  document.getElementById('view-chr-reader').classList.toggle('active', view === 'chr-reader');
+  const views = ['list','editor','shared','chronicles','chr-detail','chr-editor','entry-editor','entry-reader'];
+  views.forEach(v => {
+    document.getElementById('view-' + v)?.classList.toggle('active', v === view);
+  });
 
-  document.getElementById('nav-list').classList.toggle('active', view === 'list' || view === 'editor' || view === 'shared');
-  document.getElementById('nav-chronicles').classList.toggle('active', view === 'chronicles' || view === 'chr-editor' || view === 'chr-reader');
+  const inChronicles = ['chronicles','chr-detail','chr-editor','entry-editor','entry-reader'].includes(view);
+  const inPersonnages = ['list','editor','shared'].includes(view);
+  document.getElementById('nav-list').classList.toggle('active', inPersonnages);
+  document.getElementById('nav-chronicles').classList.toggle('active', inChronicles);
 
-  document.getElementById('share-btn').style.display = view === 'editor' ? 'flex' : 'none';
+  document.getElementById('share-btn').style.display     = view === 'editor'     ? 'flex' : 'none';
   document.getElementById('chr-share-btn').style.display = view === 'chr-editor' ? 'flex' : 'none';
 
   const si = document.getElementById('save-indicator');
   if (si) si.classList.remove('show');
-  if (view === 'editor') switchMobTab('form');
-  if (view === 'list') renderList();
-  if (view === 'chronicles') renderChroniclesList();
-  if (view === 'chr-editor') switchChrTab('form');
+
+  if (view === 'editor')       switchMobTab('form');
+  if (view === 'list')         renderList();
+  if (view === 'chronicles')   renderChroniclesList();
+  if (view === 'entry-editor') switchEntryTab('form');
 }
 
 function showSharedChar(data) {

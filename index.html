@@ -373,7 +373,7 @@
           maxlength="8" oninput="this.value=this.value.toUpperCase()"
           onkeydown="if(event.key==='Enter') followChrByCode(this.value)">
         <button class="btn-follow-chr" onclick="followChrByCode(document.getElementById('chr-follow-input').value)">
-          + Suivre une chronique
+          + S'abonner
         </button>
       </div>
       <div id="chr-grid" class="chr-grid"></div>
@@ -388,22 +388,31 @@
       </div>
     </div>
 
-    <!-- VUE ÉDITEUR CHRONIQUE -->
+    <!-- VUE DÉTAIL CHRONIQUE — liste des entrées -->
+    <div id="view-chr-detail">
+      <div id="chr-detail-content"></div>
+    </div>
+
+    <!-- VUE ÉDITEUR CHRONIQUE (titre + description + partage) -->
     <div id="view-chr-editor">
-      <div id="chr-mobile-tabs">
-        <button id="chr-mob-tab-form" class="active" onclick="switchChrTab('form')">✏️ Éditer</button>
-        <button id="chr-mob-tab-preview" onclick="switchChrTab('preview')">👁 Aperçu</button>
-      </div>
       <div id="chr-editor-form">
-        <div class="chr-title-field">
-          <input type="text" id="chr-f-title" placeholder="Titre de la chronique"
-            oninput="updateChrPreview()">
+        <div class="chr-editor-fields">
+          <div class="field">
+            <label>Titre de la chronique</label>
+            <input type="text" id="chr-f-title" placeholder="Ex: Campagne — Ombre de New York"
+              oninput="updateChrForm()">
+          </div>
+          <div class="field">
+            <label>Description</label>
+            <textarea id="chr-f-description" placeholder="Quelques mots pour présenter cette chronique…"
+              oninput="updateChrForm()" style="min-height:80px"></textarea>
+          </div>
         </div>
         <div class="chr-options">
           <div class="chr-public-row">
             <label>Partage public</label>
             <label class="chr-public-toggle">
-              <input type="checkbox" id="chr-f-public" onchange="updateChrPreview()"
+              <input type="checkbox" id="chr-f-public" onchange="updateChrForm()"
                 style="width:auto;accent-color:var(--sup)">
               <span id="chr-public-label">Privée</span>
             </label>
@@ -418,6 +427,27 @@
             </button>
           </div>
         </div>
+        <div class="chr-form-actions">
+          <button class="btn-cancel" onclick="showView('chronicles')">Annuler</button>
+          <button class="btn-save" style="background:var(--sup)" onclick="saveChronicleToDB()">Sauvegarder</button>
+        </div>
+      </div>
+      <div id="chr-preview-panel">
+        <div class="chr-preview-hint">Les entrées s'ajoutent depuis la vue de la chronique.</div>
+      </div>
+    </div>
+
+    <!-- VUE ÉDITEUR ENTRÉE -->
+    <div id="view-entry-editor">
+      <div id="entry-mobile-tabs">
+        <button id="entry-mob-tab-form" class="active" onclick="switchEntryTab('form')">✏️ Éditer</button>
+        <button id="entry-mob-tab-preview" onclick="switchEntryTab('preview')">👁 Aperçu</button>
+      </div>
+      <div id="entry-editor-form">
+        <div class="entry-title-field">
+          <input type="text" id="entry-f-title" placeholder="Titre de l'entrée"
+            oninput="updateEntryPreview()">
+        </div>
         <div class="chr-md-hint">
           <strong># Titre</strong> &nbsp;
           <strong>## Sous-titre</strong> &nbsp;
@@ -426,25 +456,25 @@
           <strong>> citation</strong> &nbsp;
           <strong>---</strong> séparateur
         </div>
-        <div class="chr-content-field">
-          <textarea id="chr-f-content"
-            placeholder="Rédigez votre chronique en Markdown…"
-            oninput="updateChrPreview()"></textarea>
+        <div class="entry-content-field">
+          <textarea id="entry-f-content"
+            placeholder="Rédigez votre entrée en Markdown…"
+            oninput="updateEntryPreview()"></textarea>
         </div>
-        <div class="chr-form-actions">
-          <button class="btn-cancel" onclick="showView('chronicles')">Annuler</button>
-          <button class="btn-cancel" id="chr-mob-preview-btn" onclick="switchChrTab('preview')" style="display:none">Aperçu</button>
-          <button class="btn-save" style="background:var(--sup)" onclick="saveChronicleToDB()">Sauvegarder</button>
+        <div class="entry-form-actions">
+          <button class="btn-cancel" id="entry-back-btn" onclick="showChrDetail(activeChrId)">Annuler</button>
+          <button class="btn-cancel" id="entry-mob-preview-btn" onclick="switchEntryTab('preview')" style="display:none">Aperçu</button>
+          <button class="btn-save" style="background:var(--sup)" onclick="saveEntryToDB()">Sauvegarder</button>
         </div>
       </div>
-      <div id="chr-preview-panel">
-        <div class="chr-preview-card" id="chr-preview-content"></div>
+      <div id="entry-preview-panel">
+        <div class="entry-preview-card" id="entry-preview-content"></div>
       </div>
     </div>
 
-    <!-- VUE LECTEUR CHRONIQUE (lecture seule) -->
-    <div id="view-chr-reader">
-      <div id="chr-reader-content"></div>
+    <!-- VUE LECTEUR ENTRÉE -->
+    <div id="view-entry-reader">
+      <div id="entry-reader-content"></div>
     </div>
 
   </div><!-- /main -->
