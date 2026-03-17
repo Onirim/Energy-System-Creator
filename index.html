@@ -696,8 +696,9 @@ html, body {
 }
 .apt-preview-row .name { font-size: 12px; color: var(--text2); }
 .apt-preview-row .rank-dots { display: flex; gap: 3px; }
-.rank-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--bg4); }
-.rank-dot.filled { background: var(--sup); }
+.apt-preview-row .rank-num {
+  font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--sup);
+}
 
 /* Traits preview */
 .trait-preview { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -1939,7 +1940,7 @@ function showSharedChar(data) {
       ${aptEntries.map(([name, val]) => `
         <div class="apt-preview-row">
           <span class="name">${name}</span>
-          <span class="rank-dots">${[1,2,3,4].map(i=>`<span class="rank-dot ${i<=val?'filled':''}"></span>`).join('')}</span>
+          <span class="rank-num">${val}</span>
         </div>`).join('')}
     </div>` : '';
 
@@ -2447,7 +2448,7 @@ function updatePreview() {
       ${aptEntries.map(([name, val]) => `
         <div class="apt-preview-row">
           <span class="name">${name}</span>
-          <span class="rank-dots">${[1,2,3,4].map(i=>`<span class="rank-dot ${i<=val?'filled':''}"></span>`).join('')}</span>
+          <span class="rank-num">${val}</span>
         </div>`).join('')}
     </div>` : '';
 
