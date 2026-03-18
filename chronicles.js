@@ -167,8 +167,16 @@ async function saveEntryToDB() {
   }
   if (result.error) { showToast('Erreur lors de la sauvegarde.'); return; }
 
+  const isNewEntry = !isUUID;
   editingEntryId = result.data.id;
   await loadEntriesForChronicle(activeChrId);
+
+  // Met à jour le compte local sans recharger toutes les chroniques
+  if (isNewEntry && chronicles[activeChrId]) {
+    chronicles[activeChrId].entry_count = (chronicles[activeChrId].entry_count || 0) + 1;
+    chronicles[activeChrId].updated_at = new Date().toISOString();
+  }
+
   showToast('Entrée sauvegardée !');
   showChrDetail(activeChrId);
 }
@@ -179,6 +187,12 @@ async function deleteEntryFromDB(entryId) {
   const { error } = await sb.from('chronicle_entries').delete().eq('id', entryId);
   if (error) { showToast('Erreur lors de la suppression.'); return; }
   await loadEntriesForChronicle(activeChrId);
+
+  // Met à jour le compte local
+  if (chronicles[activeChrId]) {
+    chronicles[activeChrId].entry_count = Math.max(0, (chronicles[activeChrId].entry_count || 1) - 1);
+  }
+
   renderChrDetail();
 }
 
