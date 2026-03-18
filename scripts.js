@@ -526,16 +526,12 @@ function setSaveIndicator(state, msg) {
 // ══════════════════════════════════════════════════════════════
 
 async function init() {
-  // Timeout de sécurité : si rien ne répond en 5s, on affiche la connexion
   const safetyTimer = setTimeout(() => {
-    console.warn('ES: timeout auth — affichage écran connexion');
     onSignedOut();
   }, 5000);
 
   try {
-    console.log('ES: vérification session…');
     const { data: { session }, error } = await sb.auth.getSession();
-    console.log('ES: getSession →', session ? 'session trouvée' : 'pas de session', error || '');
     clearTimeout(safetyTimer);
     if (session?.user) {
       await onSignedIn(session.user);
@@ -543,21 +539,17 @@ async function init() {
       onSignedOut();
     }
   } catch(e) {
-    console.error('ES: erreur init →', e);
     clearTimeout(safetyTimer);
     onSignedOut();
   }
 
-  // Écoute les changements ultérieurs (login / logout)
   sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && !isAppReady) {
-      // Seulement si on n'est pas déjà dans l'app (retour OAuth Discord)
       await onSignedIn(session.user);
     } else if (event === 'SIGNED_OUT') {
       isAppReady = false;
       onSignedOut();
     }
-    // TOKEN_REFRESHED, USER_UPDATED, INITIAL_SESSION → ignorés
   });
 }
 
