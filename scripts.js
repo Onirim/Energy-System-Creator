@@ -47,7 +47,7 @@ async function doDiscordLogin() {
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'discord',
     options: {
-      redirectTo: 'https://onirim.github.io/Energy-System-Creator/'
+      redirectTo: 'https://onirim.github.io/Energy-System/'
     }
   });
   if (error) {
@@ -1400,4 +1400,3 @@ function esc(s) {
 // L'app démarre masquée, init() gère tout via onAuthStateChange
 document.getElementById('app').style.display = 'none';
 init();
-
