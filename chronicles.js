@@ -24,16 +24,27 @@ let entryState         = null; // état formulaire entrée
 async function loadChroniclesFromDB() {
   const { data, error } = await sb
     .from('chronicles')
-    .select('id, title, description, is_public, share_code, illustration_url, illustration_position, updated_at, chronicle_entries(count)')
+    .select('id, title, description, is_public, share_code, illustration_url, illustration_position, updated_at')
     .eq('user_id', currentUser.id)
     .order('updated_at', { ascending: false });
   if (error) { console.error('Erreur chargement chroniques:', error); return; }
+
+  // Compte les entrées par chronique en une seule requête
+  const ids = (data || []).map(r => r.id);
+  let countMap = {};
+  if (ids.length) {
+    const { data: counts } = await sb
+      .from('chronicle_entries')
+      .select('chronicle_id')
+      .in('chronicle_id', ids);
+    (counts || []).forEach(r => {
+      countMap[r.chronicle_id] = (countMap[r.chronicle_id] || 0) + 1;
+    });
+  }
+
   chronicles = {};
   (data || []).forEach(r => {
-    chronicles[r.id] = {
-      ...r,
-      entry_count: r.chronicle_entries?.[0]?.count ?? 0,
-    };
+    chronicles[r.id] = { ...r, entry_count: countMap[r.id] || 0 };
   });
   await loadFollowedChroniclesFromDB();
 }
@@ -48,16 +59,29 @@ async function loadFollowedChroniclesFromDB() {
 
   const { data } = await sb
     .from('chronicles')
-    .select('id, title, description, is_public, share_code, illustration_url, illustration_position, updated_at, profiles(username), chronicle_entries(count)')
+    .select('id, title, description, is_public, share_code, illustration_url, illustration_position, updated_at, profiles(username)')
     .in('id', followedChrIds)
     .eq('is_public', true);
+
+  // Compte les entrées pour les chroniques suivies
+  const ids = (data || []).map(r => r.id);
+  let countMap = {};
+  if (ids.length) {
+    const { data: counts } = await sb
+      .from('chronicle_entries')
+      .select('chronicle_id')
+      .in('chronicle_id', ids);
+    (counts || []).forEach(r => {
+      countMap[r.chronicle_id] = (countMap[r.chronicle_id] || 0) + 1;
+    });
+  }
 
   followedChronicles = {};
   (data || []).forEach(r => {
     followedChronicles[r.id] = {
       ...r, _followed: true,
       _owner_name: r.profiles?.username || '?',
-      entry_count: r.chronicle_entries?.[0]?.count ?? 0,
+      entry_count: countMap[r.id] || 0,
     };
   });
 }
