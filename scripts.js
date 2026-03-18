@@ -220,9 +220,20 @@ async function loadFollowedCharsFromDB() {
 
   const { data: chars_data } = await sb
     .from('characters')
-    .select('id, name, rank, is_public, share_code, data, profiles(username)')
+    .select('id, name, rank, is_public, share_code, data, user_id')
     .in('id', followedIds)
     .eq('is_public', true);
+
+  // Récupère les noms des propriétaires séparément
+  const ownerIds = [...new Set((chars_data || []).map(r => r.user_id))];
+  let ownerMap = {};
+  if (ownerIds.length) {
+    const { data: profiles } = await sb
+      .from('profiles')
+      .select('id, username')
+      .in('id', ownerIds);
+    (profiles || []).forEach(p => { ownerMap[p.id] = p.username; });
+  }
 
   followedChars = {};
   (chars_data || []).forEach(row => {
@@ -234,7 +245,7 @@ async function loadFollowedCharsFromDB() {
       share_code: row.share_code,
       _db_id: row.id,
       _followed: true,
-      _owner_name: row.profiles?.username || '?',
+      _owner_name: ownerMap[row.user_id] || '?',
     };
   });
 }
