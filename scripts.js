@@ -242,6 +242,7 @@ async function onSignedIn(user) {
   document.getElementById('app').style.display = 'flex';
   await loadCharsFromDB();
   await loadChroniclesFromDB();
+  await loadDocumentsFromDB();
   document.getElementById('loading-overlay').classList.remove('active');
   isAppReady = true;
   renderList();
@@ -260,19 +261,25 @@ function onSignedOut() {
 // ══════════════════════════════════════════════════════════════
 
 function showView(view) {
-  const views = ['list','editor','shared','chronicles','chr-detail','chr-editor','entry-editor','entry-reader'];
+  const views = ['list','editor','shared','chronicles','chr-detail','chr-editor','entry-editor','entry-reader','documents','doc-editor','doc-reader'];
   views.forEach(v => document.getElementById('view-' + v)?.classList.toggle('active', v === view));
   const inChr = ['chronicles','chr-detail','chr-editor','entry-editor','entry-reader'].includes(view);
-  document.getElementById('nav-list').classList.toggle('active', !inChr && view !== 'shared' || view === 'list' || view === 'editor' || view === 'shared');
+  const inDoc = ['documents','doc-editor','doc-reader'].includes(view);
+  const inPer = ['list','editor','shared'].includes(view);
+  document.getElementById('nav-list').classList.toggle('active', inPer);
   document.getElementById('nav-chronicles').classList.toggle('active', inChr);
+  document.getElementById('nav-documents').classList.toggle('active', inDoc);
   document.getElementById('share-btn').style.display     = view === 'editor'     ? 'flex' : 'none';
   document.getElementById('chr-share-btn').style.display = view === 'chr-editor' ? 'flex' : 'none';
+  document.getElementById('doc-share-btn').style.display = view === 'doc-editor' ? 'flex' : 'none';
   const si = document.getElementById('save-indicator');
   if (si) si.classList.remove('show');
   if (view === 'editor')       switchMobTab('form');
   if (view === 'list')         renderList();
   if (view === 'chronicles')   renderChroniclesList();
+  if (view === 'documents')    renderDocumentsList();
   if (view === 'entry-editor') switchEntryTab('form');
+  if (view === 'doc-editor')   switchDocTab('form');
 }
 
 // ══════════════════════════════════════════════════════════════
