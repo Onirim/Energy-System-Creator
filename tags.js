@@ -323,15 +323,20 @@ function onFollowedTagInput(val) {
   ac.style.display = 'block';
 }
 
-function selectFollowedTag(tagId) {
+async function selectFollowedTag(tagId) {
   const tag = allTags.find(t => t.id === tagId);
   if (!tag || !editingFollowedId) return;
   const charId = editingFollowedId;
   if (!(followedTagMap[charId] || []).includes(tag.id)) {
     if (!followedTagMap[charId]) followedTagMap[charId] = [];
     followedTagMap[charId].push(tag.id);
-    sb.from('followed_character_tags')
+    const { error } = await sb.from('followed_character_tags')
       .insert({ user_id: currentUser.id, character_id: charId, tag_id: tag.id });
+    if (error) {
+      followedTagMap[charId] = followedTagMap[charId].filter(id => id !== tag.id);
+      showToast('Erreur lors de l\'ajout du tag.');
+      return;
+    }
     renderFollowedTagChips(charId);
     renderRosterFilters();
     renderList();
