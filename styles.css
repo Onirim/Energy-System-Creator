@@ -718,13 +718,19 @@ html, body {
 
 /* Toast */
 #toast {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
   background: var(--bg3); border: 1px solid var(--border2);
   color: var(--text); font-family: var(--font-body); font-size: 13px;
   padding: 10px 20px; border-radius: 6px;
-  transition: transform 0.3s ease; z-index: 100;
+  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 100;
+  opacity: 0; visibility: hidden;
 }
-#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1; visibility: visible;
+}
 
 /* ── Scrollview view ── */
 #view-sheet {
