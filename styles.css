@@ -45,16 +45,70 @@ html, body {
 /* ── Layout ── */
 #app { display: flex; flex-direction: column; height: 100vh; }
 
-/* ── Top Bar ── */
+/* ══════════════════════════════════════════════════════════════
+   TOP BAR
+   ══════════════════════════════════════════════════════════════ */
+
+/* Structure de base : colonne (mobile-first) */
 #topbar {
-  display: flex; align-items: center; gap: 16px;
-  padding: 0 20px;
-  height: 52px;
+  display: flex;
+  flex-direction: column;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   z-index: 10;
 }
+
+/* Ligne 1 : logo + éléments de droite */
+.topbar-row1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  height: 48px;
+}
+
+/* Ligne 2 : navigation */
+.topbar-row2 {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  height: 36px;
+  border-top: 1px solid var(--border);
+}
+
+/* Groupe droite de la ligne 1 */
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* ── Desktop : tout sur une seule ligne ── */
+@media (min-width: 769px) {
+  #topbar {
+    flex-direction: row;
+    align-items: center;
+    height: 52px;
+    padding: 0 20px;
+    gap: 16px;
+  }
+  .topbar-row1 {
+    padding: 0;
+    height: auto;
+    flex-shrink: 0;
+    gap: 16px;
+  }
+  .topbar-row2 {
+    padding: 0;
+    height: auto;
+    border-top: none;
+    flex: 1;
+  }
+}
+
+/* ── Logo ── */
 #topbar .logo {
   font-family: var(--font-display);
   font-size: 20px;
@@ -62,9 +116,12 @@ html, body {
   letter-spacing: 0.08em;
   color: var(--accent);
   text-transform: uppercase;
+  white-space: nowrap;
 }
 #topbar .logo span { color: var(--text3); font-weight: 400; }
-#topbar nav { display: flex; gap: 2px; margin-left: 8px; }
+
+/* ── Nav ── */
+#topbar nav { display: flex; gap: 2px; }
 #topbar nav button {
   background: none; border: none; cursor: pointer;
   font-family: var(--font-display); font-size: 13px; font-weight: 600;
@@ -74,7 +131,8 @@ html, body {
 }
 #topbar nav button:hover { color: var(--text); background: var(--bg3); }
 #topbar nav button.active { color: var(--accent); background: var(--bg3); }
-#topbar .spacer { flex: 1; }
+
+/* ── Share buttons ── */
 #topbar .share-btn {
   display: flex; align-items: center; gap: 7px;
   background: var(--bg3); border: 1px solid var(--border2);
@@ -765,21 +823,23 @@ html, body {
   /* Show mobile preview button */
   #mob-preview-btn { display: flex !important; }
 
-  /* Topbar compact */
+  /* Topbar mobile : deux lignes */
   #topbar {
-    padding: 0 12px; gap: 8px; height: 48px;
     position: sticky; top: 0; z-index: 50;
   }
+  .topbar-row1 {
+    padding: 0 12px;
+    height: 44px;
+  }
+  .topbar-row2 {
+    padding: 0 4px;
+    height: 34px;
+  }
   #topbar .logo { font-size: 16px; }
-  #topbar nav button { padding: 6px 10px; font-size: 11px; }
+  #topbar nav button { padding: 5px 10px; font-size: 11px; }
   #topbar .share-btn { padding: 5px 10px; font-size: 11px; }
   #topbar .share-btn svg { display: none; }
-
-  /* Hide text labels on very small screens, keep icons */
-  @media (max-width: 400px) {
-    #topbar .logo span { display: none; }
-    #topbar nav button { padding: 6px 8px; }
-  }
+  .topbar-right { gap: 6px; }
 
   /* List view */
   #view-list { padding: 16px; }
@@ -845,7 +905,7 @@ html, body {
   .form-actions {
     padding-bottom: calc(12px + env(safe-area-inset-bottom));
   }
-  #topbar {
+  .topbar-row1 {
     padding-left: max(12px, env(safe-area-inset-left));
     padding-right: max(12px, env(safe-area-inset-right));
   }
@@ -985,6 +1045,7 @@ html, body {
 .save-indicator.saving { color: var(--accent); }
 .save-indicator.saved  { color: var(--mov); }
 .save-indicator.error  { color: var(--offc); }
+
 /* ── Tags ── */
 .tag-chip {
   display: inline-flex; align-items: center; gap: 5px;
@@ -1074,6 +1135,7 @@ html, body {
   letter-spacing: 0.06em; text-transform: uppercase;
 }
 .filter-clear:hover { color: var(--text); }
+
 /* ── Partage / Suivi ── */
 .share-code-box {
   display: flex; align-items: center; gap: 8px;

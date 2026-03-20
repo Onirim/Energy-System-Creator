@@ -66,58 +66,64 @@
 
   <!-- Top bar -->
   <div id="topbar">
-    <div class="logo">Energy <span>System</span></div>
-    <nav>
-      <button id="nav-list" class="active" onclick="showView('list')" data-i18n="nav_characters">Personnages</button>
-      <button id="nav-chronicles" onclick="showView('chronicles')" data-i18n="nav_chronicles">Chroniques</button>
-      <button id="nav-documents" onclick="showView('documents')" data-i18n="nav_documents">Documents</button>
-    </nav>
-    <div class="spacer"></div>
-    <span class="save-indicator" id="save-indicator"></span>
-    <!-- Sélecteur de langue -->
-    <select id="lang-select" onchange="setLang(this.value)">
-      <option value="fr">FR</option>
-      <option value="en">EN</option>
-    </select>
-    <button class="share-btn" id="share-btn" onclick="shareChar()" style="display:none">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="13" r="1.5"/>
-        <line x1="5.5" y1="7" x2="10.5" y2="4.3"/><line x1="5.5" y1="9" x2="10.5" y2="11.7"/>
-      </svg>
-      <span data-i18n="topbar_share">Partager</span>
-    </button>
-    <button class="share-btn" id="chr-share-btn" onclick="shareChrBtn()" style="display:none">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="13" r="1.5"/>
-        <line x1="5.5" y1="7" x2="10.5" y2="4.3"/><line x1="5.5" y1="9" x2="10.5" y2="11.7"/>
-      </svg>
-      <span data-i18n="topbar_share">Partager</span>
-    </button>
-    <button class="share-btn" id="doc-share-btn" onclick="shareDocBtn()" style="display:none">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="13" r="1.5"/>
-        <line x1="5.5" y1="7" x2="10.5" y2="4.3"/><line x1="5.5" y1="9" x2="10.5" y2="11.7"/>
-      </svg>
-      <span data-i18n="topbar_share">Partager</span>
-    </button>
-    <!-- User menu -->
-    <div class="user-menu-wrap" id="user-menu-wrap">
-      <button class="user-btn" onclick="toggleUserMenu()">
-        <div class="avatar" id="user-avatar">?</div>
-        <span id="user-label">…</span>
-      </button>
-      <div class="user-dropdown" id="user-dropdown">
-        <div class="user-dropdown-header">
-          <div class="uname" id="dd-username">—</div>
-          <div class="uemail" id="dd-email">—</div>
-        </div>
-        <button class="user-dropdown-item danger" onclick="doLogout()">
+    <!-- Ligne 1 : logo + contrôles droite -->
+    <div class="topbar-row1">
+      <div class="logo">Energy <span>System</span></div>
+      <div class="topbar-right">
+        <span class="save-indicator" id="save-indicator"></span>
+        <select id="lang-select" onchange="setLang(this.value)">
+          <option value="fr">FR</option>
+          <option value="en">EN</option>
+        </select>
+        <button class="share-btn" id="share-btn" onclick="shareChar()" style="display:none">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M6 3H3v10h3M10 5l3 3-3 3M13 8H6"/>
+            <circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="13" r="1.5"/>
+            <line x1="5.5" y1="7" x2="10.5" y2="4.3"/><line x1="5.5" y1="9" x2="10.5" y2="11.7"/>
           </svg>
-          <span data-i18n="user_logout">Se déconnecter</span>
+          <span data-i18n="topbar_share">Partager</span>
         </button>
+        <button class="share-btn" id="chr-share-btn" onclick="shareChrBtn()" style="display:none">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="13" r="1.5"/>
+            <line x1="5.5" y1="7" x2="10.5" y2="4.3"/><line x1="5.5" y1="9" x2="10.5" y2="11.7"/>
+          </svg>
+          <span data-i18n="topbar_share">Partager</span>
+        </button>
+        <button class="share-btn" id="doc-share-btn" onclick="shareDocBtn()" style="display:none">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="13" r="1.5"/>
+            <line x1="5.5" y1="7" x2="10.5" y2="4.3"/><line x1="5.5" y1="9" x2="10.5" y2="11.7"/>
+          </svg>
+          <span data-i18n="topbar_share">Partager</span>
+        </button>
+        <!-- User menu -->
+        <div class="user-menu-wrap" id="user-menu-wrap">
+          <button class="user-btn" onclick="toggleUserMenu()">
+            <div class="avatar" id="user-avatar">?</div>
+            <span id="user-label">…</span>
+          </button>
+          <div class="user-dropdown" id="user-dropdown">
+            <div class="user-dropdown-header">
+              <div class="uname" id="dd-username">—</div>
+              <div class="uemail" id="dd-email">—</div>
+            </div>
+            <button class="user-dropdown-item danger" onclick="doLogout()">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M6 3H3v10h3M10 5l3 3-3 3M13 8H6"/>
+              </svg>
+              <span data-i18n="user_logout">Se déconnecter</span>
+            </button>
+          </div>
+        </div>
       </div>
+    </div>
+    <!-- Ligne 2 : navigation -->
+    <div class="topbar-row2">
+      <nav>
+        <button id="nav-list" class="active" onclick="showView('list')" data-i18n="nav_characters">Personnages</button>
+        <button id="nav-chronicles" onclick="showView('chronicles')" data-i18n="nav_chronicles">Chroniques</button>
+        <button id="nav-documents" onclick="showView('documents')" data-i18n="nav_documents">Documents</button>
+      </nav>
     </div>
   </div>
 
