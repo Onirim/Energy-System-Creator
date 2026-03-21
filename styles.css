@@ -44,6 +44,7 @@ html, body {
 
 /* ── Layout ── */
 #app { display: flex; flex-direction: column; height: 100vh; }
+#main { flex: 1; overflow: hidden; display: flex; min-height: 0; }
 
 /* ══════════════════════════════════════════════════════════════
    TOP BAR — Grid layout : 1 ligne desktop, 2 lignes mobile
