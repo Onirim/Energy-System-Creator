@@ -452,6 +452,15 @@ function showSharedChar(data) {
     ? `<div class="preview-section-title">${t('preview_section_background')}</div><div class="background-preview">${esc(data.background)}</div>`
     : '';
 
+  const attrCost   = (data.energy||1) * 2 + (data.recovery||1) * 3 + (data.vigor||1);
+  const powersCost = (data.powers||[]).reduce((s,p) => {
+    const m = {'+1':2,'+2':4,'-1':-1,'-2':-2};
+    return s + Math.max(1, 3 + (m[p.mod]||0));
+  }, 0);
+  const used     = attrCost + powersCost;
+  const max      = (RANK_PTS[Math.min(data.rank||5, 11)] || 39) + (data.xp_hero||0);
+  const ptColor  = used > max ? 'var(--offc)' : used === max ? 'var(--accent)' : 'var(--mov)';
+
   document.getElementById('shared-content').innerHTML = `
     <div class="shared-banner">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -466,7 +475,7 @@ function showSharedChar(data) {
       ${data.subtitle?`<div class="preview-sub">${esc(data.subtitle)}</div>`:''}
       <div class="preview-rank-badge">${t('rank_label')}${data.rank}</div>
     </div>
-    <div class="preview-section-title">${t('preview_section_attrs')}</div>
+    <div class="preview-section-title">${t('preview_section_attrs')} <span style="color:${ptColor};font-family:var(--font-mono);font-size:10px;margin-left:4px">${used} / ${max} pts</span></div>
     <div class="preview-attrs">
       <div class="preview-attr e"><div class="val">${data.energy}</div><div class="lbl">${t('preview_attr_energy')}</div><div class="pips">${pipRow(data.energy,'e',10)}</div></div>
       <div class="preview-attr r"><div class="val">${data.recovery}</div><div class="lbl">${t('preview_attr_recovery')}</div><div class="pips">${pipRow(data.recovery,'r',10)}</div></div>
