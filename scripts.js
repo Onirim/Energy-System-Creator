@@ -264,8 +264,11 @@ async function onSignedIn(user) {
   await loadDocumentsFromDB();
   document.getElementById('loading-overlay').classList.remove('active');
   isAppReady = true;
-  renderList();
-  showView('list');
+  // Routage depuis l'URL au chargement
+  if (!navigateFromHash()) {
+    renderList();
+    showView('list');
+  }
 }
 
 function onSignedOut() {
@@ -288,18 +291,21 @@ function showView(view) {
   document.getElementById('nav-list').classList.toggle('active', inPer);
   document.getElementById('nav-chronicles').classList.toggle('active', inChr);
   document.getElementById('nav-documents').classList.toggle('active', inDoc);
-  document.getElementById('share-btn').style.display     = view === 'editor'     ? 'flex' : 'none';
-  document.getElementById('chr-share-btn').style.display = view === 'chr-editor' ? 'flex' : 'none';
-  document.getElementById('doc-share-btn').style.display = view === 'doc-editor' ? 'flex' : 'none';
+  // Boutons de partage — visibles selon la vue
+  document.getElementById('share-btn').style.display        = view === 'editor'       ? 'flex' : 'none';
+  document.getElementById('chr-share-btn').style.display    = view === 'chr-editor'   ? 'flex' : 'none';
+  document.getElementById('doc-share-btn').style.display    = view === 'doc-editor'   ? 'flex' : 'none';
+  document.getElementById('chr-detail-share-btn').style.display  = view === 'chr-detail'  ? 'flex' : 'none';
+  document.getElementById('entry-reader-share-btn').style.display = view === 'entry-reader' ? 'flex' : 'none';
+  document.getElementById('doc-reader-share-btn').style.display  = view === 'doc-reader'   ? 'flex' : 'none';
   const si = document.getElementById('save-indicator');
   if (si) si.classList.remove('show');
   if (view === 'editor')       switchMobTab('form');
-  if (view === 'list')         renderList();
-  if (view === 'chronicles')   renderChroniclesList();
-  if (view === 'documents')    renderDocumentsList();
+  if (view === 'list')         { renderList(); clearHash(); }
+  if (view === 'chronicles')   { renderChroniclesList(); clearHash(); }
+  if (view === 'documents')    { renderDocumentsList(); clearHash(); }
   if (view === 'entry-editor') switchEntryTab('form');
   if (view === 'doc-editor')   switchDocTab('form');
-  // Rafraîchit tous les éléments [data-i18n] à chaque changement de vue
   applyTranslations();
 }
 
@@ -586,9 +592,115 @@ function esc(s) {
 }
 
 // ── Helper interpolation i18n ─────────────────────────────────
-// Usage : ti('toast_char_added', { name: 'Kitsune' })
 function ti(key, vars) {
   return t(key).replace(/\$\{(\w+)\}/g, (_, k) => vars[k] ?? '');
+}
+
+// ══════════════════════════════════════════════════════════════
+// ROUTAGE PAR URL (hash)
+// Format : #char/SHARE_CODE | #chr/UUID | #entry/CHR_UUID/ENTRY_UUID | #doc/UUID
+// ══════════════════════════════════════════════════════════════
+
+function buildShareUrl(type, ...ids) {
+  const base = window.location.href.split('#')[0];
+  return `${base}#${type}/${ids.join('/')}`;
+}
+
+function copyUrl(url) {
+  navigator.clipboard.writeText(url)
+    .then(() => showToast(t('toast_url_copied')))
+    .catch(() => prompt(t('share_code_prompt_short'), url));
+}
+
+function setHash(type, ...ids) {
+  history.replaceState(null, '', `#${type}/${ids.join('/')}`);
+}
+
+function clearHash() {
+  history.replaceState(null, '', window.location.pathname + window.location.search);
+}
+
+// Appelé dans onSignedIn — retourne true si navigation réussie
+function navigateFromHash() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return false;
+  const [type, ...ids] = hash.split('/');
+  switch (type) {
+    case 'char':  return navigateToChar(ids[0]);
+    case 'chr':   return navigateToChr(ids[0]);
+    case 'entry': return navigateToEntry(ids[0], ids[1]);
+    case 'doc':   return navigateToDoc(ids[0]);
+    default:      return false;
+  }
+}
+
+function navigateToChar(shareCode) {
+  if (!shareCode) return false;
+  const ownChar = Object.values(chars).find(c => c.share_code === shareCode);
+  if (ownChar) { editChar(ownChar._db_id); return true; }
+  const followed = Object.values(followedChars).find(c => c.share_code === shareCode);
+  if (followed) { showSharedChar(followed); return true; }
+  // Pas en mémoire : charge depuis Supabase
+  sb.from('characters')
+    .select('id, name, rank, is_public, share_code, data, user_id')
+    .eq('share_code', shareCode).eq('is_public', true).single()
+    .then(({ data: row, error }) => {
+      if (error || !row) { showToast(t('toast_char_not_found')); showView('list'); renderList(); return; }
+      const charData = { ...row.data, name: row.name, rank: row.rank,
+        is_public: row.is_public, share_code: row.share_code, _db_id: row.id };
+      showSharedChar(charData);
+    });
+  return true;
+}
+
+function navigateToChr(chrId) {
+  if (!chrId) return false;
+  if (chronicles[chrId] || followedChronicles[chrId]) { showChrDetail(chrId); return true; }
+  sb.from('chronicles')
+    .select('id, title, description, is_public, share_code, illustration_url, illustration_position, updated_at, user_id')
+    .eq('id', chrId).eq('is_public', true).single()
+    .then(async ({ data: row, error }) => {
+      if (error || !row) { showToast(t('toast_chr_not_found')); showView('chronicles'); return; }
+      const { data: profile } = await sb.from('profiles').select('username').eq('id', row.user_id).single();
+      followedChronicles[row.id] = { ...row, _followed: true, _owner_name: profile?.username || '?', entry_count: 0 };
+      showChrDetail(row.id);
+    });
+  return true;
+}
+
+function navigateToEntry(chrId, entryId) {
+  if (!chrId || !entryId) return false;
+  const openEntry = () => {
+    activeChrId = chrId;
+    loadEntriesForChronicle(chrId).then(() => {
+      const entry = (chrEntries[chrId] || []).find(e => e.id === entryId);
+      if (!entry) { showToast(t('toast_entry_not_found')); showView('chronicles'); return; }
+      openEntryReader(entryId);
+    });
+  };
+  if (chronicles[chrId] || followedChronicles[chrId]) { openEntry(); return true; }
+  // Charge la chronique d'abord, puis l'entrée
+  navigateToChr(chrId);
+  const wait = setInterval(() => {
+    if (chronicles[chrId] || followedChronicles[chrId]) { clearInterval(wait); openEntry(); }
+  }, 100);
+  setTimeout(() => clearInterval(wait), 5000);
+  return true;
+}
+
+function navigateToDoc(docId) {
+  if (!docId) return false;
+  if (documents[docId] || followedDocuments[docId]) { openDocReader(docId); return true; }
+  sb.from('documents')
+    .select('id, title, content, is_public, share_code, illustration_url, illustration_position, updated_at, user_id')
+    .eq('id', docId).eq('is_public', true).single()
+    .then(async ({ data: row, error }) => {
+      if (error || !row) { showToast(t('toast_doc_not_found')); showView('documents'); return; }
+      const { data: profile } = await sb.from('profiles').select('username').eq('id', row.user_id).single();
+      followedDocuments[row.id] = { ...row, _followed: true, _owner_name: profile?.username || '?' };
+      openDocReader(row.id);
+    });
+  return true;
 }
 
 // ── Boot ──────────────────────────────────────────────────────

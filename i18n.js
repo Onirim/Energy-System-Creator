@@ -2,6 +2,7 @@
 // ENERGY SYSTEM — Internationalisation (i18n)
 // Usage :
 //   t('clé')                → chaîne traduite
+//   ti('clé', { var })      → chaîne avec interpolation
 //   setLang('en')           → change la langue + re-render
 //   applyTranslations()     → met à jour les éléments [data-i18n]
 // ══════════════════════════════════════════════════════════════
@@ -66,10 +67,10 @@ const TRANSLATIONS = {
     toast_char_own:               'C\'est votre propre personnage !',
     toast_char_already_followed:  'Vous suivez déjà ce personnage.',
     toast_char_follow_error:      'Erreur lors du suivi.',
-    toast_char_added:             '"${name}" ajouté à votre liste !',  // utiliser interpolation
+    toast_char_added:             '"${name}" ajouté à votre liste !',
     toast_char_unfollowed:        'Personnage retiré de la liste.',
     toast_illus_too_large:        'Image trop lourde (max 3 Mo).',
-    toast_illus_upload_error:     'Erreur upload : ',                   // + error.message
+    toast_illus_upload_error:     'Erreur upload : ',
     toast_illus_added:            'Illustration ajoutée !',
     toast_upload_no_user:         'Erreur : utilisateur non connecté.',
     toast_chr_saved:              'Chronique sauvegardée !',
@@ -79,11 +80,12 @@ const TRANSLATIONS = {
     toast_chr_own:                'C\'est votre propre chronique !',
     toast_chr_already_followed:   'Vous suivez déjà cette chronique.',
     toast_chr_follow_error:       'Erreur lors de l\'abonnement.',
-    toast_chr_subscribed:         'Abonné à "${title}" !',             // interpolation
+    toast_chr_subscribed:         'Abonné à "${title}" !',
     toast_chr_unsubscribed:       'Abonnement supprimé.',
     toast_entry_saved:            'Entrée sauvegardée !',
     toast_entry_save_error:       'Erreur lors de la sauvegarde.',
     toast_entry_delete_error:     'Erreur lors de la suppression.',
+    toast_entry_not_found:        'Entrée introuvable.',
     toast_doc_saved:              'Document sauvegardé !',
     toast_doc_save_error:         'Erreur lors de la sauvegarde.',
     toast_doc_delete_error:       'Erreur lors de la suppression.',
@@ -91,19 +93,20 @@ const TRANSLATIONS = {
     toast_doc_own:                'C\'est votre propre document !',
     toast_doc_already_followed:   'Vous suivez déjà ce document.',
     toast_doc_follow_error:       'Erreur lors de l\'abonnement.',
-    toast_doc_subscribed:         'Abonné à "${title}" !',             // interpolation
+    toast_doc_subscribed:         'Abonné à "${title}" !',
     toast_doc_unsubscribed:       'Abonnement supprimé.',
     toast_tag_error:              'Erreur création tag.',
     toast_tag_add_error:          'Erreur lors de l\'ajout du tag.',
-    toast_code_copied:            'Code "${code}" copié !',            // interpolation
+    toast_code_copied:            'Code "${code}" copié !',
     toast_code_copied_short:      'Code "${code}" copié dans le presse-papier !',
+    toast_url_copied:             'Lien copié dans le presse-papier !',
     toast_share_need_public:      'Activez le partage public pour ce personnage, puis sauvegardez.',
     toast_share_need_save:        'Sauvegardez d\'abord le personnage pour générer son code de partage.',
     toast_chr_share_need_public:  'Activez le partage public, puis sauvegardez.',
     toast_chr_share_need_save:    'Sauvegardez d\'abord pour générer le code.',
 
     // ── Confirm dialogs ───────────────────────────────────────
-    confirm_delete_char:          'Supprimer "${name}" ?',             // interpolation
+    confirm_delete_char:          'Supprimer "${name}" ?',
     confirm_delete_chr:           'Supprimer "${title}" et toutes ses entrées ?',
     confirm_delete_entry:         'Supprimer "${title}" ?',
     confirm_delete_doc:           'Supprimer "${title}" ?',
@@ -132,11 +135,11 @@ const TRANSLATIONS = {
     roster_filter_label:          'Filtrer',
     roster_filter_clear:          'Tout afficher',
     roster_filter_followed:       '👁 Suivi',
-    followed_owner_prefix:        'par ',                              // + owner name
+    followed_owner_prefix:        'par ',
     shared_view_banner:           'Personnage partagé — consultation uniquement',
 
     // ── Carte personnage ──────────────────────────────────────
-    card_rank:                    'Rang ',                             // + number
+    card_rank:                    'Rang ',
     card_attr_energy:             'Énergie',
     card_attr_recovery:           'Récup.',
     card_attr_vigor:              'Vigueur',
@@ -217,7 +220,7 @@ const TRANSLATIONS = {
     rank_9:                       'Rang 9 — Supers majeurs (69 pts)',
     rank_10:                      'Rang 10 — Plus puissants sur Terre (77 pts)',
     rank_11:                      'Rang 11+ — Cosmiques (84+ pts)',
-    rank_label:                   'Rang ',                            // + number (preview badge)
+    rank_label:                   'Rang ',
 
     // ── Maturités ─────────────────────────────────────────────
     maturity_adolescent:          'Adolescent (12 pts d\'aptitudes)',
@@ -263,7 +266,7 @@ const TRANSLATIONS = {
     preview_section_traits:       'Traits',
     preview_section_complications:'Complications',
     preview_section_background:   'Background',
-    preview_attr_cost_energy:     'pts de héros',                     // "{n} pts de héros"
+    preview_attr_cost_energy:     'pts de héros',
     preview_attr_cost_recovery:   'pts de héros',
     preview_attr_cost_vigor:      'pts de héros',
 
@@ -278,14 +281,12 @@ const TRANSLATIONS = {
     chr_empty_body:               'Rédigez le récit de vos aventures ou abonnez-vous aux chroniques d\'autres joueurs.',
     chr_empty_btn:                'Créer une chronique',
 
-    // ── Carte chronique ───────────────────────────────────────
     chr_entry_count_zero:         'Aucune entrée',
     chr_entry_count_one:          '1 entrée',
-    chr_entry_count_many:         '${n} entrées',                     // interpolation
-    chr_last_update:              'Mise à jour le ',                  // + date
-    chr_followed_owner:           'par ',                             // + owner name
+    chr_entry_count_many:         '${n} entrées',
+    chr_last_update:              'Mise à jour le ',
+    chr_followed_owner:           'par ',
 
-    // ── Éditeur chronique ─────────────────────────────────────
     chr_editor_field_title:       'Titre de la chronique',
     chr_editor_field_title_ph:    'Ex: Campagne — Ombre de New York',
     chr_editor_field_desc:        'Description',
@@ -293,12 +294,10 @@ const TRANSLATIONS = {
     chr_editor_public:            'Partage public',
     chr_preview_hint:             'Les entrées s\'ajoutent depuis la vue de la chronique.',
 
-    // ── Détail chronique ──────────────────────────────────────
     chr_detail_btn_edit:          'Modifier',
     chr_detail_btn_new_entry:     'Nouvelle entrée',
     chr_no_entries:               'Aucune entrée pour l\'instant.',
 
-    // ── Éditeur entrée ────────────────────────────────────────
     entry_title_ph:               'Titre de l\'entrée',
     entry_content_ph:             'Rédigez votre entrée en Markdown…',
     entry_mobile_edit:            '✏️ Éditer',
@@ -322,7 +321,6 @@ const TRANSLATIONS = {
     doc_empty_body:               'Créez vos premiers documents de campagne ou abonnez-vous à ceux d\'autres joueurs.',
     doc_empty_btn:                'Créer un document',
 
-    // ── Éditeur document ──────────────────────────────────────
     doc_editor_illus_section:     'Illustration d\'en-tête',
     doc_editor_title_ph:          'Titre du document',
     doc_editor_public:            'Partage public',
@@ -347,10 +345,10 @@ const TRANSLATIONS = {
     followed_tags_close:          'Fermer',
 
     // ══════════════════════════════════════════════════════════
-    // PARTAGE — code de partage
+    // PARTAGE
     // ══════════════════════════════════════════════════════════
     share_copy_btn:               'Copier',
-    share_code_prompt:            'Code de partage à transmettre :',  // fallback prompt()
+    share_code_prompt:            'Code de partage à transmettre :',
     share_code_prompt_short:      'Code de partage :',
 
   },
@@ -431,6 +429,7 @@ const TRANSLATIONS = {
     toast_entry_saved:            'Entry saved!',
     toast_entry_save_error:       'Error while saving.',
     toast_entry_delete_error:     'Error while deleting.',
+    toast_entry_not_found:        'Entry not found.',
     toast_doc_saved:              'Document saved!',
     toast_doc_save_error:         'Error while saving.',
     toast_doc_delete_error:       'Error while deleting.',
@@ -444,6 +443,7 @@ const TRANSLATIONS = {
     toast_tag_add_error:          'Error while adding tag.',
     toast_code_copied:            'Code "${code}" copied!',
     toast_code_copied_short:      'Code "${code}" copied to clipboard!',
+    toast_url_copied:             'Link copied to clipboard!',
     toast_share_need_public:      'Enable public sharing for this character, then save first.',
     toast_share_need_save:        'Save the character first to generate its share code.',
     toast_chr_share_need_public:  'Enable public sharing, then save first.',
@@ -485,8 +485,8 @@ const TRANSLATIONS = {
     // ── Carte personnage ──────────────────────────────────────
     card_rank:                    'Rank ',
     card_attr_energy:             'Energy',
-    card_attr_recovery:           'Recovery',
-    card_attr_vigor:              'Toughness',
+    card_attr_recovery:           'Recov.',
+    card_attr_vigor:              'Vigor',
     card_manage_tags:             'Manage tags',
     card_unfollow:                'Unfollow',
 
@@ -514,7 +514,7 @@ const TRANSLATIONS = {
     editor_attr_energy_cost:      '(2 pts/+1)',
     editor_attr_recovery:         'Recovery',
     editor_attr_recovery_cost:    '(3 pts/+1)',
-    editor_attr_vigor:            'Toughness',
+    editor_attr_vigor:            'Vigor',
     editor_attr_vigor_cost:       '(1 pt/+1)',
     editor_pts_hero:              'Hero points',
 
@@ -523,8 +523,8 @@ const TRANSLATIONS = {
     editor_power_desc_ph:         'Short description (optional)',
     editor_add_power:             '+ Add a power',
 
-    editor_section_aptitudes:     'Skills',
-    editor_pts_aptitudes:         'Skill points',
+    editor_section_aptitudes:     'Aptitudes',
+    editor_pts_aptitudes:         'Aptitude points',
 
     editor_section_traits:        'Traits',
     editor_trait_name_ph:         'Trait name',
@@ -546,7 +546,7 @@ const TRANSLATIONS = {
     editor_section_xp:            'Experience',
     editor_xp_hero_label:         'Bonus hero pts',
     editor_xp_hero_detail:        'Added to rank budget',
-    editor_xp_apt_label:          'Bonus skill pts',
+    editor_xp_apt_label:          'Bonus aptitude pts',
     editor_xp_apt_detail:         'Added to maturity budget',
 
     editor_mobile_edit:           '✏️ Edit',
@@ -573,7 +573,7 @@ const TRANSLATIONS = {
 
     // ── Types de pouvoir ──────────────────────────────────────
     power_type_offc:              'Off-C',
-    power_type_offd:              'Off-R',
+    power_type_offd:              'Off-D',
     power_type_def:               'Def',
     power_type_mov:               'Mov',
     power_type_sup:               'Sup',
@@ -717,6 +717,17 @@ function t(key) {
 }
 
 /**
+ * Retourne la chaîne traduite avec interpolation des variables.
+ * @param {string} key
+ * @param {Object} vars  - ex: { name: 'Kitsune', code: 'A3B4C5D6' }
+ * @returns {string}
+ * @example ti('toast_char_added', { name: 'Kitsune' })
+ */
+function ti(key, vars) {
+  return t(key).replace(/\$\{(\w+)\}/g, (_, k) => vars[k] ?? '');
+}
+
+/**
  * Change la langue active, la persiste et met à jour le DOM statique.
  * @param {string} lang  - code langue ('fr' | 'en')
  */
@@ -725,7 +736,6 @@ function setLang(lang) {
   currentLang = lang;
   localStorage.setItem('lang', lang);
   applyTranslations();
-  // Synchronise le sélecteur si présent
   const sel = document.getElementById('lang-select');
   if (sel) sel.value = lang;
 }
@@ -737,7 +747,7 @@ function setLang(lang) {
 function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.dataset.i18n;
-    const attr = el.dataset.i18nAttr; // optionnel : 'placeholder', 'title', etc.
+    const attr = el.dataset.i18nAttr;
     const value = t(key);
     if (attr) el.setAttribute(attr, value);
     else el.textContent = value;

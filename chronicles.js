@@ -335,6 +335,7 @@ async function showChrDetail(chrId) {
   await loadEntriesForChronicle(chrId);
   renderChrDetail();
   showView('chr-detail');
+  setHash('chr', chrId);
 }
 
 function renderChrDetail() {
@@ -459,16 +460,25 @@ function copyChrShareCode() {
 }
 
 function shareChrBtn() {
-  if (!chrState?.is_public) {
-    showToast(t('toast_chr_share_need_public'));
-    return;
+  if (!chrState?.is_public) { showToast(t('toast_chr_share_need_public')); return; }
+  const chrId = editingChrId;
+  if (!chrId) { showToast(t('toast_chr_share_need_save')); return; }
+  copyUrl(buildShareUrl('chr', chrId));
+}
+
+function shareChrDetailBtn() {
+  if (!activeChrId) return;
+  const chr = chronicles[activeChrId] || followedChronicles[activeChrId];
+  if (!chr?.is_public) { showToast(t('toast_chr_share_need_public')); return; }
+  copyUrl(buildShareUrl('chr', activeChrId));
+}
+
+function shareEntryReaderBtn() {
+  if (!activeChrId) return;
+  const hash = window.location.hash.slice(1);
+  if (hash.startsWith('entry/')) {
+    copyUrl(buildShareUrl('entry', ...hash.replace('entry/', '').split('/')));
   }
-  const code = chrState?.share_code ||
-    (editingChrId && chronicles[editingChrId]?.share_code);
-  if (!code) { showToast(t('toast_chr_share_need_save')); return; }
-  navigator.clipboard.writeText(code)
-    .then(() => showToast(ti('toast_code_copied', { code })))
-    .catch(() => prompt(t('share_code_prompt_short'), code));
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -542,6 +552,7 @@ function openEntryReader(entryId) {
     <div class="chr-reader-body">${entry.content ? marked.parse(entry.content) : ''}</div>
   `;
   showView('entry-reader');
+  setHash('entry', activeChrId, entryId);
 }
 
 // ══════════════════════════════════════════════════════════════

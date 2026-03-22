@@ -381,9 +381,7 @@ function shareChar() {
   if (!state.is_public) { showToast(t('toast_share_need_public')); return; }
   const code = state.share_code || (editingId && chars[editingId]?.share_code);
   if (!code) { showToast(t('toast_share_need_save')); return; }
-  navigator.clipboard.writeText(code)
-    .then(() => showToast(ti('toast_code_copied_short', { code })))
-    .catch(() => prompt(t('share_code_prompt'), code));
+  copyUrl(buildShareUrl('char', code));
 }
 
 function copyShareCode() {

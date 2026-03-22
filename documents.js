@@ -272,11 +272,15 @@ function copyDocShareCode() {
 
 function shareDocBtn() {
   if (!docState?.is_public) { showToast(t('toast_chr_share_need_public')); return; }
-  const code = docState?.share_code || (editingDocId && documents[editingDocId]?.share_code);
-  if (!code) { showToast(t('toast_chr_share_need_save')); return; }
-  navigator.clipboard.writeText(code)
-    .then(() => showToast(ti('toast_code_copied', { code })))
-    .catch(() => prompt(t('share_code_prompt_short'), code));
+  if (!editingDocId) { showToast(t('toast_chr_share_need_save')); return; }
+  copyUrl(buildShareUrl('doc', editingDocId));
+}
+
+function shareDocReaderBtn() {
+  const hash = window.location.hash.slice(1);
+  if (hash.startsWith('doc/')) {
+    copyUrl(buildShareUrl('doc', hash.replace('doc/', '')));
+  }
 }
 
 function switchDocTab(tab) {
@@ -319,6 +323,7 @@ function openDocReader(id) {
     ${metaHtml}
     <div class="doc-reader-body">${d.content ? marked.parse(d.content) : ''}</div>`;
   showView('doc-reader');
+  setHash('doc', id);
 }
 
 // ══════════════════════════════════════════════════════════════
