@@ -259,9 +259,11 @@ async function onSignedIn(user) {
   document.getElementById('auth-screen').classList.remove('active');
   document.getElementById('loading-overlay').classList.add('active');
   document.getElementById('app').style.display = 'flex';
-  await loadCharsFromDB();
-  await loadChroniclesFromDB();
-  await loadDocumentsFromDB();
+  await Promise.all([
+    loadCharsFromDB(),
+    loadChroniclesFromDB(),
+    loadDocumentsFromDB(),
+  ]);
   document.getElementById('loading-overlay').classList.remove('active');
   isAppReady = true;
   // Routage depuis l'URL au chargement
