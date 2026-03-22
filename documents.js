@@ -73,6 +73,8 @@ async function saveDocTagsToDB(docId) {
   }
   docTagMap[docId] = newTagIds;
 }
+
+async function loadFollowedDocumentsFromDB() {
   const { data: followed } = await sb
     .from('followed_documents')
     .select('document_id')
