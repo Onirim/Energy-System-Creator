@@ -22,6 +22,13 @@
 <link rel="stylesheet" href="chronicles.css" />
 <link rel="stylesheet" href="documents.css" />
 <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+<script>
+  // Ouvre tous les liens Markdown dans un nouvel onglet
+  const markedRenderer = new marked.Renderer();
+  markedRenderer.link = ({ href, title, text }) =>
+    `<a href="${href}"${title ? ` title="${title}"` : ''} target="_blank" rel="noopener noreferrer">${text}</a>`;
+  marked.setOptions({ renderer: markedRenderer });
+</script>
 <!-- i18n doit être chargé avant tous les autres scripts -->
 <script src="i18n.js"></script>
 <style>
