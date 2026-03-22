@@ -1,6 +1,16 @@
 /* ── Reset & Variables ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── Liens ── */
+a { color: var(--accent); text-decoration: none; transition: color 0.15s; }
+a:hover { color: var(--accent2); }
+
+/* Liens dans le contenu Markdown (chroniques, documents) */
+.chr-reader-body a,
+.doc-reader-body a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(232,196,106,0.35); transition: color 0.15s, border-color 0.15s; }
+.chr-reader-body a:hover,
+.doc-reader-body a:hover { color: var(--accent2); border-bottom-color: var(--accent2); }
+
 :root {
   --bg: #0e0f13;
   --bg2: #14151b;
