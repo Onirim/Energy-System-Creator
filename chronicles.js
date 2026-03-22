@@ -335,7 +335,8 @@ async function showChrDetail(chrId) {
   await loadEntriesForChronicle(chrId);
   renderChrDetail();
   showView('chr-detail');
-  setHash('chr', chrId);
+  const chr = chronicles[chrId] || followedChronicles[chrId];
+  if (chr?.share_code) setHash('chr', chr.share_code);
 }
 
 function renderChrDetail() {
@@ -559,7 +560,8 @@ function openEntryReader(entryId) {
     <div class="chr-reader-body">${entry.content ? marked.parse(entry.content) : ''}</div>
   `;
   showView('entry-reader');
-  setHash('entry', activeChrId, entryId);
+  const chrShareCode = (chronicles[activeChrId] || followedChronicles[activeChrId])?.share_code;
+  if (chrShareCode) setHash('entry', chrShareCode, entryId);
 }
 
 // ══════════════════════════════════════════════════════════════

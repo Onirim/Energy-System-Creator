@@ -302,12 +302,13 @@ function showView(view) {
   document.getElementById('doc-reader-share-btn').style.display  = view === 'doc-reader'   ? 'flex' : 'none';
   const si = document.getElementById('save-indicator');
   if (si) si.classList.remove('show');
-  if (view === 'editor')       switchMobTab('form');
+  if (view === 'editor')       { switchMobTab('form'); clearHash(); }
   if (view === 'list')         { renderList(); clearHash(); }
   if (view === 'chronicles')   { renderChroniclesList(); clearHash(); }
   if (view === 'documents')    { renderDocumentsList(); clearHash(); }
-  if (view === 'entry-editor') switchEntryTab('form');
-  if (view === 'doc-editor')   switchDocTab('form');
+  if (view === 'entry-editor') { switchEntryTab('form'); clearHash(); }
+  if (view === 'doc-editor')   { switchDocTab('form'); clearHash(); }
+  if (view === 'chr-editor')   clearHash();
   applyTranslations();
 }
 
@@ -485,6 +486,7 @@ function showSharedChar(data) {
     ${aptHtml}${traitsHtml}${complHtml}${bgHtml}
   `;
   showView('shared');
+  if (data.share_code) setHash('char', data.share_code);
 }
 
 // ══════════════════════════════════════════════════════════════

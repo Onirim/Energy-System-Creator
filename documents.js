@@ -454,7 +454,7 @@ function openDocReader(id) {
     ${metaHtml}
     <div class="doc-reader-body">${d.content ? marked.parse(d.content) : ''}</div>`;
   showView('doc-reader');
-  setHash('doc', id);
+  if (d.share_code) setHash('doc', d.share_code);
 }
 
 // ══════════════════════════════════════════════════════════════
