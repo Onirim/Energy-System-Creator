@@ -591,28 +591,28 @@ function shareCampaignBtn() {
 function buildSelectableList(type) {
   if (type === 'char') {
     const own = Object.values(chars)
-      .filter(c => c.share_code)
+      .filter(c => c.share_code && c.is_public)
       .map(c => ({ code: c.share_code, name: c.name, sub: c.subtitle || '', owner: null }));
     const followed = Object.values(followedChars)
-      .filter(c => c.share_code)
+      .filter(c => c.share_code && c.is_public)
       .map(c => ({ code: c.share_code, name: c.name, sub: c.subtitle || '', owner: c._owner_name || '?' }));
     return [...own, ...followed];
   }
   if (type === 'chr') {
     const own = Object.values(chronicles)
-      .filter(c => c.share_code)
+      .filter(c => c.share_code && c.is_public)
       .map(c => ({ code: c.share_code, name: c.title, sub: c.description ? c.description.slice(0, 60) : '', owner: null }));
     const followed = Object.values(followedChronicles)
-      .filter(c => c.share_code)
+      .filter(c => c.share_code && c.is_public)
       .map(c => ({ code: c.share_code, name: c.title, sub: c.description ? c.description.slice(0, 60) : '', owner: c._owner_name || '?' }));
     return [...own, ...followed];
   }
   if (type === 'doc') {
     const own = Object.values(documents)
-      .filter(d => d.share_code)
+      .filter(d => d.share_code && d.is_public)
       .map(d => ({ code: d.share_code, name: d.title, sub: '', owner: null }));
     const followed = Object.values(followedDocuments)
-      .filter(d => d.share_code)
+      .filter(d => d.share_code && d.is_public)
       .map(d => ({ code: d.share_code, name: d.title, sub: '', owner: d._owner_name || '?' }));
     return [...own, ...followed];
   }
