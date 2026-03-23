@@ -24,18 +24,20 @@
 <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
 <script>
   // Ouvre les liens externes dans un nouvel onglet
-  // Les liens internes (#char/..., #chr/..., etc.) sont gérés par le routeur
+  // Les liens internes (#...) sont gérés par le routeur SPA
   const markedRenderer = new marked.Renderer();
   markedRenderer.link = function(token) {
-    const href  = token.href  ?? token;
-    const title = token.title ?? '';
-    const text  = token.text  ?? '';
-    // Lien interne au site (hash) → géré par le routeur, pas de target="_blank"
-    if (href && href.startsWith('#')) {
-      return `<a href="${href}"${title ? ` title="${title}"` : ''}>${text}</a>`;
+    const href  = token.href  || '';
+    const title = token.title || '';
+    // Le texte du lien est dans token.text ou dans les tokens enfants
+    const text = (token.text !== undefined && token.text !== '')
+      ? token.text
+      : (this.parser ? this.parser.parseInline(token.tokens || []) : token.raw || href);
+    const titleAttr = title ? ` title="${title}"` : '';
+    if (href.startsWith('#')) {
+      return `<a href="${href}"${titleAttr}>${text}</a>`;
     }
-    // Lien externe → nouvel onglet
-    return `<a href="${href || ''}"${title ? ` title="${title}"` : ''} target="_blank" rel="noopener noreferrer">${text}</a>`;
+    return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
   };
   marked.setOptions({ renderer: markedRenderer });
 </script>
