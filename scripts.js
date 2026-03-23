@@ -313,6 +313,7 @@ function showView(view) {
   document.getElementById('entry-reader-share-btn').style.display = view === 'entry-reader'    ? 'flex' : 'none';
   document.getElementById('doc-reader-share-btn').style.display   = view === 'doc-reader'      ? 'flex' : 'none';
   document.getElementById('campaign-share-btn').style.display     = view === 'campaign-editor' ? 'flex' : 'none';
+  document.getElementById('shared-char-share-btn').style.display  = view === 'shared'          ? 'flex' : 'none';
 
   const si = document.getElementById('save-indicator');
   if (si) si.classList.remove('show');
@@ -437,6 +438,8 @@ function powerTagStyle(type) {
 // VUE PARTAGÉE (personnage suivi en lecture seule)
 // ══════════════════════════════════════════════════════════════
 
+let currentSharedCharCode = null; // share_code du personnage actuellement affiché
+
 function showSharedChar(data) {
   const powHtml = (data.powers||[]).filter(p=>p.name).map(p => {
     const pt = POWER_TYPES().find(x => x.value === p.type);
@@ -503,7 +506,13 @@ function showSharedChar(data) {
     ${aptHtml}${traitsHtml}${complHtml}${bgHtml}
   `;
   showView('shared');
+  currentSharedCharCode = data.share_code || null;
   if (data.share_code) setHash('char', data.share_code);
+}
+
+function shareSharedChar() {
+  if (!currentSharedCharCode) { showToast(t('toast_char_not_found')); return; }
+  copyUrl(buildShareUrl('char', currentSharedCharCode));
 }
 
 // ══════════════════════════════════════════════════════════════
