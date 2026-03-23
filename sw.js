@@ -6,7 +6,7 @@
 //   - Images Supabase → Network First avec fallback cache
 // ══════════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'energy-system-v6';
+const CACHE_NAME = 'energy-system-v7';
 
 // Assets mis en cache dès l'installation
 const PRECACHE_ASSETS = [
@@ -15,12 +15,14 @@ const PRECACHE_ASSETS = [
   '/Energy-System/styles.css',
   '/Energy-System/chronicles.css',
   '/Energy-System/documents.css',
+  '/Energy-System/campaigns.css',
   '/Energy-System/i18n.js',
   '/Energy-System/supabase-client.js',
   '/Energy-System/scripts.js',
   '/Energy-System/editor.js',
   '/Energy-System/chronicles.js',
   '/Energy-System/documents.js',
+  '/Energy-System/campaigns.js',
   '/Energy-System/tags.js',
 ];
 
@@ -91,7 +93,6 @@ self.addEventListener('fetch', event => {
 
 // ── Helpers ───────────────────────────────────────────────────
 
-// Cache First : répond depuis le cache, sinon réseau puis met en cache
 async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
@@ -107,7 +108,6 @@ async function cacheFirst(request) {
   }
 }
 
-// Network First : essaie le réseau, replie sur le cache si offline
 async function networkFirstWithCache(request) {
   try {
     const response = await fetch(request);

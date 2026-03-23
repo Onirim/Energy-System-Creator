@@ -27,6 +27,7 @@ const TRANSLATIONS = {
     nav_characters:               'Personnages',
     nav_chronicles:               'Chroniques',
     nav_documents:                'Documents',
+    nav_campaigns:                'Campagnes',
     topbar_share:                 'Partager',
 
     // ── User menu ─────────────────────────────────────────────
@@ -45,6 +46,7 @@ const TRANSLATIONS = {
     btn_follow:                   '+ Suivre un personnage',
     btn_follow_chr:               '+ S\'abonner',
     btn_follow_doc:               '+ S\'abonner',
+    btn_follow_campaign:          '+ S\'abonner',
 
     // ── Visibilité ────────────────────────────────────────────
     visibility_public:            '🔗 Public',
@@ -104,18 +106,30 @@ const TRANSLATIONS = {
     toast_share_need_save:        'Sauvegardez d\'abord le personnage pour générer son code de partage.',
     toast_chr_share_need_public:  'Activez le partage public, puis sauvegardez.',
     toast_chr_share_need_save:    'Sauvegardez d\'abord pour générer le code.',
+    toast_campaign_saved:         'Campagne sauvegardée !',
+    toast_campaign_save_error:    'Erreur lors de la sauvegarde.',
+    toast_campaign_delete_error:  'Erreur lors de la suppression.',
+    toast_campaign_not_found:     'Code introuvable ou campagne non publique.',
+    toast_campaign_own:           'C\'est votre propre campagne !',
+    toast_campaign_already_followed: 'Vous suivez déjà cette campagne.',
+    toast_campaign_follow_error:  'Erreur lors de l\'abonnement.',
+    toast_campaign_subscribed:    'Abonné à "${title}" !',
+    toast_campaign_unsubscribed:  'Abonnement supprimé.',
+    toast_campaign_synced:        '${n} nouvel(aux) élément(s) ajouté(s) depuis vos campagnes.',
 
     // ── Confirm dialogs ───────────────────────────────────────
     confirm_delete_char:          'Supprimer "${name}" ?',
     confirm_delete_chr:           'Supprimer "${title}" et toutes ses entrées ?',
     confirm_delete_entry:         'Supprimer "${title}" ?',
     confirm_delete_doc:           'Supprimer "${title}" ?',
+    confirm_delete_campaign:      'Supprimer "${title}" ?',
 
     // ── Alert dialogs ─────────────────────────────────────────
     alert_char_no_name:           'Veuillez donner un nom au personnage.',
     alert_chr_no_title:           'Donnez un titre à la chronique.',
     alert_entry_no_title:         'Donnez un titre à cette entrée.',
     alert_doc_no_title:           'Donnez un titre au document.',
+    alert_campaign_no_title:      'Donnez un titre à la campagne.',
 
     // ── Save indicator ────────────────────────────────────────
     save_saving:                  'Enregistrement…',
@@ -338,6 +352,41 @@ const TRANSLATIONS = {
     doc_reader_banner:            'Document partagé — lecture seule',
 
     // ══════════════════════════════════════════════════════════
+    // CAMPAGNES
+    // ══════════════════════════════════════════════════════════
+    campaign_title:               'Campagnes',
+    campaign_subtitle:            'Collections de campagne',
+    campaign_new_btn:             'Nouvelle campagne',
+    campaign_follow_placeholder:  'Code de campagne (ex: A3F8C2D1)',
+    campaign_empty_title:         'Aucune campagne',
+    campaign_empty_body:          'Créez votre première campagne pour regrouper et partager vos personnages, chroniques et documents.',
+    campaign_empty_btn:           'Créer une campagne',
+    campaign_empty_items:         'Aucun élément',
+    campaign_no_items:            'Cette campagne ne contient encore aucun élément.',
+    campaign_followed_banner:     'Campagne suivie — par ',
+
+    campaign_type_char:           'Perso',
+    campaign_type_chr:            'Chronique',
+    campaign_type_doc:            'Document',
+    campaign_type_char_plural:    'Personnages',
+    campaign_type_chr_plural:     'Chroniques',
+    campaign_type_doc_plural:     'Documents',
+
+    campaign_editor_title:        'Titre de la campagne',
+    campaign_editor_title_ph:     'Ex: Ombre de New York — Saison 1',
+    campaign_editor_desc:         'Description',
+    campaign_editor_desc_ph:      'Quelques mots pour décrire cette campagne…',
+    campaign_editor_public:       'Partage public',
+    campaign_editor_items_title:  'Contenu de la campagne',
+    campaign_editor_items_hint:   'Sélectionnez les éléments à inclure. Seuls les éléments publics (avec un code de partage actif) seront transmis aux joueurs abonnés.',
+
+    campaign_select_all:          'Tout sélectionner',
+    campaign_deselect_all:        'Tout désélectionner',
+    campaign_selector_empty:      'Aucun élément disponible',
+    campaign_selection_none:      'Aucun élément sélectionné',
+    campaign_selection_count:     '${n} élément(s) sélectionné(s)',
+
+    // ══════════════════════════════════════════════════════════
     // TAGS (modale personnages suivis)
     // ══════════════════════════════════════════════════════════
     followed_tags_modal_label:    'Tags locaux',
@@ -371,6 +420,7 @@ const TRANSLATIONS = {
     nav_characters:               'Characters',
     nav_chronicles:               'Chronicles',
     nav_documents:                'Documents',
+    nav_campaigns:                'Campaigns',
     topbar_share:                 'Share',
 
     // ── User menu ─────────────────────────────────────────────
@@ -389,6 +439,7 @@ const TRANSLATIONS = {
     btn_follow:                   '+ Follow a character',
     btn_follow_chr:               '+ Subscribe',
     btn_follow_doc:               '+ Subscribe',
+    btn_follow_campaign:          '+ Subscribe',
 
     // ── Visibilité ────────────────────────────────────────────
     visibility_public:            '🔗 Public',
@@ -448,18 +499,30 @@ const TRANSLATIONS = {
     toast_share_need_save:        'Save the character first to generate its share code.',
     toast_chr_share_need_public:  'Enable public sharing, then save first.',
     toast_chr_share_need_save:    'Save first to generate the code.',
+    toast_campaign_saved:         'Campaign saved!',
+    toast_campaign_save_error:    'Error while saving.',
+    toast_campaign_delete_error:  'Error while deleting.',
+    toast_campaign_not_found:     'Code not found or campaign is not public.',
+    toast_campaign_own:           'That\'s your own campaign!',
+    toast_campaign_already_followed: 'You\'re already subscribed to this campaign.',
+    toast_campaign_follow_error:  'Error while subscribing.',
+    toast_campaign_subscribed:    'Subscribed to "${title}"!',
+    toast_campaign_unsubscribed:  'Subscription removed.',
+    toast_campaign_synced:        '${n} new item(s) added from your campaigns.',
 
     // ── Confirm dialogs ───────────────────────────────────────
     confirm_delete_char:          'Delete "${name}"?',
     confirm_delete_chr:           'Delete "${title}" and all its entries?',
     confirm_delete_entry:         'Delete "${title}"?',
     confirm_delete_doc:           'Delete "${title}"?',
+    confirm_delete_campaign:      'Delete "${title}"?',
 
     // ── Alert dialogs ─────────────────────────────────────────
     alert_char_no_name:           'Please give the character a name.',
     alert_chr_no_title:           'Give the chronicle a title.',
     alert_entry_no_title:         'Give this entry a title.',
     alert_doc_no_title:           'Give the document a title.',
+    alert_campaign_no_title:      'Give the campaign a title.',
 
     // ── Save indicator ────────────────────────────────────────
     save_saving:                  'Saving…',
@@ -682,6 +745,41 @@ const TRANSLATIONS = {
     doc_reader_banner:            'Shared document — read only',
 
     // ══════════════════════════════════════════════════════════
+    // CAMPAIGNS
+    // ══════════════════════════════════════════════════════════
+    campaign_title:               'Campaigns',
+    campaign_subtitle:            'Campaign collections',
+    campaign_new_btn:             'New campaign',
+    campaign_follow_placeholder:  'Campaign code (e.g. A3F8C2D1)',
+    campaign_empty_title:         'No campaigns yet',
+    campaign_empty_body:          'Create your first campaign to group and share your characters, chronicles and documents.',
+    campaign_empty_btn:           'Create a campaign',
+    campaign_empty_items:         'No items',
+    campaign_no_items:            'This campaign has no items yet.',
+    campaign_followed_banner:     'Followed campaign — by ',
+
+    campaign_type_char:           'Char',
+    campaign_type_chr:            'Chronicle',
+    campaign_type_doc:            'Document',
+    campaign_type_char_plural:    'Characters',
+    campaign_type_chr_plural:     'Chronicles',
+    campaign_type_doc_plural:     'Documents',
+
+    campaign_editor_title:        'Campaign title',
+    campaign_editor_title_ph:     'E.g. Shadow of New York — Season 1',
+    campaign_editor_desc:         'Description',
+    campaign_editor_desc_ph:      'A few words to describe this campaign…',
+    campaign_editor_public:       'Public sharing',
+    campaign_editor_items_title:  'Campaign contents',
+    campaign_editor_items_hint:   'Select the items to include. Only public items (with an active share code) will be transmitted to subscribed players.',
+
+    campaign_select_all:          'Select all',
+    campaign_deselect_all:        'Deselect all',
+    campaign_selector_empty:      'No items available',
+    campaign_selection_none:      'No items selected',
+    campaign_selection_count:     '${n} item(s) selected',
+
+    // ══════════════════════════════════════════════════════════
     // TAGS
     // ══════════════════════════════════════════════════════════
     followed_tags_modal_label:    'Local tags',
@@ -704,33 +802,16 @@ const TRANSLATIONS = {
 
 let currentLang = localStorage.getItem('lang') || 'fr';
 
-/**
- * Retourne la chaîne traduite pour la clé donnée.
- * Repli sur le français si la clé n'existe pas dans la langue active.
- * @param {string} key
- * @returns {string}
- */
 function t(key) {
   return TRANSLATIONS[currentLang]?.[key]
     ?? TRANSLATIONS['fr'][key]
     ?? key;
 }
 
-/**
- * Retourne la chaîne traduite avec interpolation des variables.
- * @param {string} key
- * @param {Object} vars  - ex: { name: 'Kitsune', code: 'A3B4C5D6' }
- * @returns {string}
- * @example ti('toast_char_added', { name: 'Kitsune' })
- */
 function ti(key, vars) {
   return t(key).replace(/\$\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 }
 
-/**
- * Change la langue active, la persiste et met à jour le DOM statique.
- * @param {string} lang  - code langue ('fr' | 'en')
- */
 function setLang(lang) {
   if (!TRANSLATIONS[lang]) return;
   currentLang = lang;
@@ -740,10 +821,6 @@ function setLang(lang) {
   if (sel) sel.value = lang;
 }
 
-/**
- * Met à jour tous les éléments portant l'attribut [data-i18n] dans le DOM.
- * À appeler après setLang() et après chaque showView() si nécessaire.
- */
 function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.dataset.i18n;
@@ -754,7 +831,6 @@ function applyTranslations() {
   });
 }
 
-// ── Initialisation au chargement ──────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const sel = document.getElementById('lang-select');
   if (sel) sel.value = currentLang;

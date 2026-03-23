@@ -259,14 +259,16 @@ async function onSignedIn(user) {
   document.getElementById('auth-screen').classList.remove('active');
   document.getElementById('loading-overlay').classList.add('active');
   document.getElementById('app').style.display = 'flex';
+  // Charge les modules de base en parallèle
   await Promise.all([
     loadCharsFromDB(),
     loadChroniclesFromDB(),
     loadDocumentsFromDB(),
   ]);
+  // Campagnes chargées après (syncFollowedCampaignItems dépend des stores ci-dessus)
+  await loadCampaignsFromDB();
   document.getElementById('loading-overlay').classList.remove('active');
   isAppReady = true;
-  // Routage depuis l'URL au chargement
   if (!navigateFromHash()) {
     renderList();
     showView('list');
@@ -285,30 +287,45 @@ function onSignedOut() {
 // ══════════════════════════════════════════════════════════════
 
 function showView(view) {
-  const views = ['list','editor','shared','chronicles','chr-detail','chr-editor','entry-editor','entry-reader','documents','doc-editor','doc-reader'];
+  const views = [
+    'list','editor','shared',
+    'chronicles','chr-detail','chr-editor','entry-editor','entry-reader',
+    'documents','doc-editor','doc-reader',
+    'campaigns','campaign-detail','campaign-editor',
+  ];
   views.forEach(v => document.getElementById('view-' + v)?.classList.toggle('active', v === view));
-  const inChr = ['chronicles','chr-detail','chr-editor','entry-editor','entry-reader'].includes(view);
-  const inDoc = ['documents','doc-editor','doc-reader'].includes(view);
-  const inPer = ['list','editor','shared'].includes(view);
+
+  const inChr      = ['chronicles','chr-detail','chr-editor','entry-editor','entry-reader'].includes(view);
+  const inDoc      = ['documents','doc-editor','doc-reader'].includes(view);
+  const inPer      = ['list','editor','shared'].includes(view);
+  const inCampaign = ['campaigns','campaign-detail','campaign-editor'].includes(view);
+
   document.getElementById('nav-list').classList.toggle('active', inPer);
   document.getElementById('nav-chronicles').classList.toggle('active', inChr);
   document.getElementById('nav-documents').classList.toggle('active', inDoc);
-  // Boutons de partage — visibles selon la vue
-  document.getElementById('share-btn').style.display        = view === 'editor'       ? 'flex' : 'none';
-  document.getElementById('chr-share-btn').style.display    = view === 'chr-editor'   ? 'flex' : 'none';
-  document.getElementById('doc-share-btn').style.display    = view === 'doc-editor'   ? 'flex' : 'none';
-  document.getElementById('chr-detail-share-btn').style.display  = view === 'chr-detail'  ? 'flex' : 'none';
-  document.getElementById('entry-reader-share-btn').style.display = view === 'entry-reader' ? 'flex' : 'none';
-  document.getElementById('doc-reader-share-btn').style.display  = view === 'doc-reader'   ? 'flex' : 'none';
+  document.getElementById('nav-campaigns').classList.toggle('active', inCampaign);
+
+  // Boutons de partage
+  document.getElementById('share-btn').style.display              = view === 'editor'          ? 'flex' : 'none';
+  document.getElementById('chr-share-btn').style.display          = view === 'chr-editor'      ? 'flex' : 'none';
+  document.getElementById('doc-share-btn').style.display          = view === 'doc-editor'      ? 'flex' : 'none';
+  document.getElementById('chr-detail-share-btn').style.display   = view === 'chr-detail'      ? 'flex' : 'none';
+  document.getElementById('entry-reader-share-btn').style.display = view === 'entry-reader'    ? 'flex' : 'none';
+  document.getElementById('doc-reader-share-btn').style.display   = view === 'doc-reader'      ? 'flex' : 'none';
+  document.getElementById('campaign-share-btn').style.display     = view === 'campaign-editor' ? 'flex' : 'none';
+
   const si = document.getElementById('save-indicator');
   if (si) si.classList.remove('show');
-  if (view === 'editor')       { switchMobTab('form'); clearHash(); }
-  if (view === 'list')         { renderList(); clearHash(); }
-  if (view === 'chronicles')   { renderChroniclesList(); clearHash(); }
-  if (view === 'documents')    { renderDocumentsList(); clearHash(); }
-  if (view === 'entry-editor') { switchEntryTab('form'); clearHash(); }
-  if (view === 'doc-editor')   { switchDocTab('form'); clearHash(); }
-  if (view === 'chr-editor')   clearHash();
+
+  if (view === 'editor')          { switchMobTab('form'); clearHash(); }
+  if (view === 'list')            { renderList(); clearHash(); }
+  if (view === 'chronicles')      { renderChroniclesList(); clearHash(); }
+  if (view === 'documents')       { renderDocumentsList(); clearHash(); }
+  if (view === 'campaigns')       { renderCampaignsList(); clearHash(); }
+  if (view === 'entry-editor')    { switchEntryTab('form'); clearHash(); }
+  if (view === 'doc-editor')      { switchDocTab('form'); clearHash(); }
+  if (view === 'chr-editor')      clearHash();
+  if (view === 'campaign-editor') clearHash();
   applyTranslations();
 }
 
@@ -604,14 +621,14 @@ function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── Helper interpolation i18n ─────────────────────────────────
 function ti(key, vars) {
   return t(key).replace(/\$\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 }
 
 // ══════════════════════════════════════════════════════════════
 // ROUTAGE PAR URL (hash)
-// Format : #char/SHARE_CODE | #chr/UUID | #entry/CHR_UUID/ENTRY_UUID | #doc/UUID
+// Format : #char/CODE | #chr/CODE | #entry/CHR_CODE/ENTRY_ID
+//          #doc/CODE  | #campaign/CODE
 // ══════════════════════════════════════════════════════════════
 
 function buildShareUrl(type, ...ids) {
@@ -633,17 +650,17 @@ function clearHash() {
   history.replaceState(null, '', window.location.pathname + window.location.search);
 }
 
-// Appelé dans onSignedIn — retourne true si navigation réussie
 function navigateFromHash() {
   const hash = window.location.hash.slice(1);
   if (!hash) return false;
   const [type, ...ids] = hash.split('/');
   switch (type) {
-    case 'char':  return navigateToChar(ids[0]);
-    case 'chr':   return navigateToChr(ids[0]);
-    case 'entry': return navigateToEntry(ids[0], ids[1]);
-    case 'doc':   return navigateToDoc(ids[0]);
-    default:      return false;
+    case 'char':     return navigateToChar(ids[0]);
+    case 'chr':      return navigateToChr(ids[0]);
+    case 'entry':    return navigateToEntry(ids[0], ids[1]);
+    case 'doc':      return navigateToDoc(ids[0]);
+    case 'campaign': return navigateToCampaign(ids[0]);
+    default:         return false;
   }
 }
 
@@ -653,7 +670,6 @@ function navigateToChar(shareCode) {
   if (ownChar) { editChar(ownChar._db_id); return true; }
   const followed = Object.values(followedChars).find(c => c.share_code === shareCode);
   if (followed) { showSharedChar(followed); return true; }
-  // Pas en mémoire : charge depuis Supabase
   sb.from('characters')
     .select('id, name, rank, is_public, share_code, data, user_id')
     .eq('share_code', shareCode).eq('is_public', true).single()
@@ -724,6 +740,24 @@ function navigateToDoc(docCode) {
       const { data: profile } = await sb.from('profiles').select('username').eq('id', row.user_id).single();
       followedDocuments[row.id] = { ...row, _followed: true, _owner_name: profile?.username || '?' };
       openDocReader(row.id);
+    });
+  return true;
+}
+
+function navigateToCampaign(campaignCode) {
+  if (!campaignCode) return false;
+  const inOwn      = Object.values(campaigns).find(c => c.share_code === campaignCode);
+  const inFollowed = Object.values(followedCampaigns).find(c => c.share_code === campaignCode);
+  if (inOwn)      { showCampaignDetail(inOwn.id);      return true; }
+  if (inFollowed) { showCampaignDetail(inFollowed.id); return true; }
+  sb.from('campaigns')
+    .select('id, title, description, is_public, share_code, updated_at, user_id')
+    .eq('share_code', campaignCode).eq('is_public', true).single()
+    .then(async ({ data: row, error }) => {
+      if (error || !row) { showToast(t('toast_campaign_not_found')); showView('campaigns'); return; }
+      const { data: profile } = await sb.from('profiles').select('username').eq('id', row.user_id).single();
+      followedCampaigns[row.id] = { ...row, _followed: true, _owner_name: profile?.username || '?' };
+      showCampaignDetail(row.id);
     });
   return true;
 }
