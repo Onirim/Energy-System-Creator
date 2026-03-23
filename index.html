@@ -23,10 +23,20 @@
 <link rel="stylesheet" href="documents.css" />
 <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
 <script>
-  // Ouvre tous les liens Markdown dans un nouvel onglet
+  // Ouvre les liens externes dans un nouvel onglet
+  // Les liens internes (#char/..., #chr/..., etc.) sont gérés par le routeur
   const markedRenderer = new marked.Renderer();
-  markedRenderer.link = ({ href, title, text }) =>
-    `<a href="${href}"${title ? ` title="${title}"` : ''} target="_blank" rel="noopener noreferrer">${text}</a>`;
+  markedRenderer.link = function(token) {
+    const href  = token.href  ?? token;
+    const title = token.title ?? '';
+    const text  = token.text  ?? '';
+    // Lien interne au site (hash) → géré par le routeur, pas de target="_blank"
+    if (href && href.startsWith('#')) {
+      return `<a href="${href}"${title ? ` title="${title}"` : ''}>${text}</a>`;
+    }
+    // Lien externe → nouvel onglet
+    return `<a href="${href || ''}"${title ? ` title="${title}"` : ''} target="_blank" rel="noopener noreferrer">${text}</a>`;
+  };
   marked.setOptions({ renderer: markedRenderer });
 </script>
 <!-- i18n doit être chargé avant tous les autres scripts -->

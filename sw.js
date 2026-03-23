@@ -6,7 +6,7 @@
 //   - Images Supabase → Network First avec fallback cache
 // ══════════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'energy-system-v5';
+const CACHE_NAME = 'energy-system-v4';
 
 // Assets mis en cache dès l'installation
 const PRECACHE_ASSETS = [
