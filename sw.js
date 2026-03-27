@@ -6,7 +6,7 @@
 //   - Images Supabase → Network First avec fallback cache
 // ══════════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'energy-system-v14';
+const CACHE_NAME = 'energy-system-v15';
 
 // Assets mis en cache dès l'installation
 const PRECACHE_ASSETS = [
@@ -16,6 +16,7 @@ const PRECACHE_ASSETS = [
   '/Energy-System/chronicles.css',
   '/Energy-System/documents.css',
   '/Energy-System/campaigns.css',
+  '/Energy-System/transfer.css',
   '/Energy-System/i18n.js',
   '/Energy-System/supabase-client.js',
   '/Energy-System/scripts.js',
@@ -24,6 +25,7 @@ const PRECACHE_ASSETS = [
   '/Energy-System/documents.js',
   '/Energy-System/campaigns.js',
   '/Energy-System/tags.js',
+  '/Energy-System/transfer.js'
 ];
 
 // ── Installation : pré-cache des assets statiques ─────────────
